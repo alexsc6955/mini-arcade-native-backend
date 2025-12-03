@@ -4,7 +4,21 @@ mini-arcade native backend package.
 
 from __future__ import annotations
 
-from typing import Iterable
+import os
+import sys
+
+# --- 1) Make sure Windows can find SDL2.dll when using vcpkg ------------------
+
+if sys.platform == "win32":
+    vcpkg_root = os.environ.get("VCPKG_ROOT")
+    if vcpkg_root:
+        # Typical vcpkg layout: <VCPKG_ROOT>/installed/x64-windows/bin/SDL2.dll
+        sdl_bin = os.path.join(vcpkg_root, "installed", "x64-windows", "bin")
+        if os.path.isdir(sdl_bin):
+            # Python 3.8+ – add DLL search path before importing the extension
+            os.add_dll_directory(sdl_bin)
+
+# --- 2) Now import native extension and core types ----------------------------
 
 from . import _native as native
 
