@@ -1,6 +1,9 @@
 # .github/workflows/release-create.yml
 name: Create Release Branch
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
