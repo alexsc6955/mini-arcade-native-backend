@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-12-04
+
+### Other
+- Merge pull request #2 from alexsc6955/main
+- Merge pull request #1 from alexsc6955/feature/ci_cd
+- Implement CI workflow for automated testing and linting
+- Add SDL2.dll search path for Windows when using vcpkg
+- Initial Commit
+
 ## [0.2.0] - 2025-12-03
 
 ### Added
