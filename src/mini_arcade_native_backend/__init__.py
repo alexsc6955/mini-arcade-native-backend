@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 import sys
-import time
 
 # --- 1) Make sure Windows can find SDL2.dll when using vcpkg ------------------
 
@@ -21,8 +20,12 @@ if sys.platform == "win32":
 
 # --- 2) Now import native extension and core types ----------------------------
 
-from mini_arcade_core import Backend, Event, EventType, Game, GameConfig, Scene
+# Justification: Need to import core after setting DLL path on Windows
+# pylint: disable=wrong-import-position
+from mini_arcade_core import Backend, Event, EventType
 
+# Justification: Importing the native extension module
+# pylint: disable=import-self,no-name-in-module
 from . import _native as native
 
 # --- 2) Now import core + define NativeBackend as before ---

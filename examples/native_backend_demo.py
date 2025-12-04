@@ -1,12 +1,15 @@
+# Justification: Example script for native backend demo
+# pylint: disable=missing-module-docstring,missing-function-docstring
 from __future__ import annotations
 
 import time
 
-from mini_arcade_native_backend import NativeBackend
 from mini_arcade_core.backend import EventType
 
+from mini_arcade_native_backend import NativeBackend
 
-def main() -> None:
+
+def main():
     backend = NativeBackend()
     backend.init(800, 600, "Mini Arcade Native Backend Demo")
 
