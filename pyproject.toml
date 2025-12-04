@@ -47,13 +47,15 @@ force-exclude = '''(
 |^build
 |^dist
 |^docs
+|^tests
+|^examples
 )'''
 
 [tool.isort]
 profile = "black"
 line_length = 79
 known_first_party = ["mini_arcade_native_backend"]
-skip = [".venv", "venv", "env", "build", "dist", "docs"]
+skip = [".venv", "venv", "env", "build", "dist", "docs", "tests", "examples"]
 
 [tool.mypy]
 python_version = "3.9"
@@ -76,4 +78,5 @@ ignore-paths = [
   "^build",
   "^dist",
   "^docs",
+  "^examples",
 ]
