@@ -20,11 +20,16 @@ if sys.platform == "win32":
 
 # --- 2) Now import native extension and core types ----------------------------
 
+# Justification: Need to import core after setting DLL path on Windows
+# pylint: disable=wrong-import-position
+from mini_arcade_core import Backend, Event, EventType
+
+# Justification: Importing the native extension module
+# pylint: disable=import-self,no-name-in-module
 from . import _native as native
 
 # --- 2) Now import core + define NativeBackend as before ---
 
-from mini_arcade_core.backend import Backend, Event, EventType
 
 __all__ = ["NativeBackend", "native"]
 
@@ -46,13 +51,13 @@ class NativeBackend(Backend):
     def init(self, width: int, height: int, title: str):
         """
         Initialize the backend with a window of given width, height, and title.
-        
+
         :param width: Width of the window in pixels.
         :type width: int
-        
+
         :param height: Height of the window in pixels.
         :type height: int
-        
+
         :param title: Title of the window.
         :type title: str
         """
@@ -61,7 +66,7 @@ class NativeBackend(Backend):
     def poll_events(self) -> list[Event]:
         """
         Poll for events from the backend and return them as a list of Event objects.
-        
+
         :return: List of Event objects representing the polled events.
         :rtype: list[Event]
         """
@@ -83,16 +88,16 @@ class NativeBackend(Backend):
     def draw_rect(self, x: int, y: int, w: int, h: int):
         """
         Draw a rectangle at the specified position with given width and height.
-        
+
         :param x: X coordinate of the rectangle's top-left corner.
         :type x: int
-        
+
         :param y: Y coordinate of the rectangle's top-left corner.
         :type y: int
-        
+
         :param w: Width of the rectangle.
         :type w: int
-        
+
         :param h: Height of the rectangle.
         :type h: int
         """
