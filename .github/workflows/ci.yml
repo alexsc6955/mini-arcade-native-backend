@@ -17,9 +17,9 @@ jobs:
   python-ci:
     uses: trivox-io/trivox-ci/.github/workflows/python-ci.yml@main
     with:
-      project-name: "mini-arcade-core"
-      lint-path: "src/mini_arcade_core"
+      project-name: "mini-arcade-native-backend"
+      lint-path: "src/mini_arcade_native_backend"
+      apt-deps: "libsdl2-dev"
     secrets:
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-
