@@ -39,17 +39,11 @@ cmake.verbose = true
 [tool.black]
 line-length = 79
 target-version = ["py39"]
-force-exclude = '''(
-^\.venv
-|^venv
-|^env
-|^\.env
-|^build
-|^dist
-|^docs
-|^tests
-|^examples
-)'''
+extend-exclude = '''/(
+    docs
+  | tests
+  | examples
+)/'''
 
 [tool.isort]
 profile = "black"
