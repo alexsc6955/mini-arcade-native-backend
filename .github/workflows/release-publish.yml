@@ -17,6 +17,7 @@ jobs:
     with:
       release_branch: ${{ inputs.release_branch }}
       version_file: "pyproject.toml"
+      apt-deps: "libsdl2-dev"
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
