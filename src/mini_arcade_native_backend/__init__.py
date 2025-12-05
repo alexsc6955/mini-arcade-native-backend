@@ -100,7 +100,7 @@ class NativeBackend(Backend):
         y: int,
         w: int,
         h: int,
-        color: tuple[int, int, int] = (255, 255, 255),
+        color: tuple[int, ...] = (255, 255, 255),
     ):
         """
         Draw a rectangle at the specified position with given width and height.
@@ -117,8 +117,16 @@ class NativeBackend(Backend):
         :param h: Height of the rectangle.
         :type h: int
         """
-        r, g, b = color
-        self._engine.draw_rect(x, y, w, h, int(r), int(g), int(b))
+        if len(color) == 3:
+            r, g, b = color
+            self._engine.draw_rect(x, y, w, h, r, g, b)
+        elif len(color) == 4:
+            r, g, b, a = color
+            self._engine.draw_rect_rgba(x, y, w, h, r, g, b, a)
+        else:
+            raise ValueError(
+                f"Color must be (r,g,b) or (r,g,b,a), got {color!r}"
+            )
 
     def draw_text(
         self,

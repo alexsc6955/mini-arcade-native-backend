@@ -58,6 +58,9 @@ namespace mini {
         // Returns true on success, false on failure.
         bool capture_frame(const char* path);
 
+        // Draw a filled rectangle with RGBA color (supports transparency).
+        void draw_rect_rgba(int x, int y, int w, int h, int r, int g, int b, int a);
+
     private:
         SDL_Window* window_;
         SDL_Renderer* renderer_;

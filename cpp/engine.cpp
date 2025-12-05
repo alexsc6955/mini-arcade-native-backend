@@ -84,6 +84,9 @@ namespace mini {
             throw std::runtime_error(msg);
         }
 
+        // Enable alpha blending for RGBA drawing
+        SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+
         initialized_ = true;
     }
 
@@ -215,6 +218,31 @@ namespace mini {
         SDL_RenderCopy(renderer_, texture, nullptr, &dstRect);
         SDL_DestroyTexture(texture);
     }
+
+    void Engine::draw_rect_rgba(int x, int y, int w, int h, int r, int g, int b, int a)
+    {
+        if (!initialized_ || renderer_ == nullptr) {
+            return;
+        }
+
+        auto clamp = [](int v) {
+            if (v < 0) return 0;
+            if (v > 255) return 255;
+            return v;
+        };
+
+        SDL_Rect rect{ x, y, w, h };
+
+        SDL_SetRenderDrawColor(
+            renderer_,
+            static_cast<Uint8>(clamp(r)),
+            static_cast<Uint8>(clamp(g)),
+            static_cast<Uint8>(clamp(b)),
+            static_cast<Uint8>(clamp(a))
+        );
+        SDL_RenderFillRect(renderer_, &rect);
+    }
+
 
     bool Engine::capture_frame(const char* path)
     {
