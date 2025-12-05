@@ -25,13 +25,29 @@ PYBIND11_MODULE(_native, m) {
     py::class_<mini::Engine>(m, "Engine")
         .def(py::init<>())
         .def("init", &mini::Engine::init,
-             py::arg("width"), py::arg("height"), py::arg("title"))
+                py::arg("width"), py::arg("height"), py::arg("title"))
+
         .def("begin_frame", &mini::Engine::begin_frame)
         .def("end_frame", &mini::Engine::end_frame)
+
         .def("draw_rect", &mini::Engine::draw_rect,
-             py::arg("x"), py::arg("y"), py::arg("w"), py::arg("h"))
+                py::arg("x"), py::arg("y"), py::arg("w"), py::arg("h"))
         .def("draw_sprite", &mini::Engine::draw_sprite,
-             py::arg("texture_id"), py::arg("x"), py::arg("y"),
-             py::arg("w"), py::arg("h"))
+                py::arg("texture_id"), py::arg("x"), py::arg("y"),
+                py::arg("w"), py::arg("h"))
+
+        .def("load_font", &mini::Engine::load_font,
+                py::arg("path"), py::arg("pt_size"))
+
+        .def(
+            "draw_text",
+            &mini::Engine::draw_text,
+                py::arg("text"),
+                py::arg("x"),
+                py::arg("y"),
+                py::arg("r"),
+                py::arg("g"),
+                py::arg("b")
+        )
         .def("poll_events", &mini::Engine::poll_events);
 }
