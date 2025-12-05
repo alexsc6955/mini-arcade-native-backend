@@ -45,8 +45,10 @@ _NATIVE_TO_CORE = {
 class NativeBackend(Backend):
     """Adapter that makes the C++ Engine usable as a mini-arcade backend."""
 
-    def __init__(self):
+    def __init__(self, font_path: str | None = None, font_size: int = 24):
         self._engine = native.Engine()
+        self._font_path = font_path
+        self._font_size = font_size
 
     def init(self, width: int, height: int, title: str):
         """
@@ -62,6 +64,10 @@ class NativeBackend(Backend):
         :type title: str
         """
         self._engine.init(width, height, title)
+
+        # Load font if provided
+        if self._font_path is not None:
+            self._engine.load_font(self._font_path, self._font_size)
 
     def poll_events(self) -> list[Event]:
         """
@@ -102,3 +108,18 @@ class NativeBackend(Backend):
         :type h: int
         """
         self._engine.draw_rect(x, y, w, h)
+
+    def draw_text(
+        self,
+        x: int,
+        y: int,
+        text: str,
+        color: tuple[int, int, int] = (255, 255, 255),
+    ) -> None:
+        """
+        Draw text at the given position using the loaded font.
+        If no font is loaded, this is a no-op.
+        """
+        # We rely on C++ side to no-op if font is missing
+        r, g, b = color
+        self._engine.draw_text(text, x, y, int(r), int(g), int(b))

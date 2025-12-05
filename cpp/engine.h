@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include <vector>
 
 // A minimal 2D graphics engine binding for Python using SDL.
@@ -43,11 +44,18 @@ namespace mini {
 
         // Poll all pending events and return them.
         std::vector<Event> poll_events();
+        
+        // Load a TTF font from file at specified point size.
+        void load_font(const char* path, int pt_size);
+
+        // Draw text at specified position.
+        void draw_text(const char* text, int x, int y, int r, int g, int b);
 
     private:
         SDL_Window* window_;
         SDL_Renderer* renderer_;
         bool initialized_;
+        TTF_Font* font_;
     };
 
 } // namespace mini
