@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-12-05
+
+### Added
+- add text rendering support with SDL2_ttf integration
+
+### Other
+- Merge pull request #7 from alexsc6955/feature/text_support
+- Merge release/0.2 into develop
+
 ## [0.2.3] - 2025-12-04
 
 - Internal changes only.
