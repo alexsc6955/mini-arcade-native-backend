@@ -187,7 +187,8 @@ class NativeBackend(Backend):
         :param path: Optional file path to save the captured frame (e.g., PNG).
         :type path: str | None
 
-        :return: True if the frame was successfully captured (and saved if path provided), False otherwise.
+        :return: True if the frame was successfully captured (and saved if path provided),
+            False otherwise.
         :rtype: bool
         """
         return self._engine.capture_frame(path)
