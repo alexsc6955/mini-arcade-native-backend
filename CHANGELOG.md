@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.3] - 2025-12-05
+
+### Other
+- docs: improve docstring formatting for capture_frame method in NativeBackend
+- Merge branch 'release/0.3' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.3
+
 ## [0.3.2] - 2025-12-05
 
 ### Added
