@@ -216,6 +216,58 @@ namespace mini {
         SDL_DestroyTexture(texture);
     }
 
+    bool Engine::capture_frame(const char* path)
+    {
+        if (!initialized_ || renderer_ == nullptr) {
+            return false;
+        }
+
+        int width = 0;
+        int height = 0;
+        if (SDL_GetRendererOutputSize(renderer_, &width, &height) != 0) {
+            std::cerr << "SDL_GetRendererOutputSize Error: " << SDL_GetError() << std::endl;
+            return false;
+        }
+
+        // Create a surface to hold the pixels (32-bit RGBA)
+        SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(
+            0,
+            width,
+            height,
+            32,
+            SDL_PIXELFORMAT_ARGB8888
+        );
+
+        if (!surface) {
+            std::cerr << "SDL_CreateRGBSurfaceWithFormat Error: " << SDL_GetError() << std::endl;
+            return false;
+        }
+
+        // Read pixels from the current render target into the surface
+        if (SDL_RenderReadPixels(
+                renderer_,
+                nullptr,                        // whole screen
+                surface->format->format,
+                surface->pixels,
+                surface->pitch) != 0)
+        {
+            std::cerr << "SDL_RenderReadPixels Error: " << SDL_GetError() << std::endl;
+            SDL_FreeSurface(surface);
+            return false;
+        }
+
+        // Save as BMP (simple, no extra dependencies).
+        // Use .bmp extension in the path you pass from Python.
+        if (SDL_SaveBMP(surface, path) != 0) {
+            std::cerr << "SDL_SaveBMP Error: " << SDL_GetError() << std::endl;
+            SDL_FreeSurface(surface);
+            return false;
+        }
+
+        SDL_FreeSurface(surface);
+        return true;
+    }
+
     std::vector<Event> Engine::poll_events()
     {
         std::vector<Event> events;

@@ -55,5 +55,8 @@ PYBIND11_MODULE(_native, m) {
                 py::arg("g"),
                 py::arg("b")
         )
-        .def("poll_events", &mini::Engine::poll_events);
+        .def("poll_events", &mini::Engine::poll_events)
+
+        .def("capture_frame", &mini::Engine::capture_frame,
+                py::arg("path"));
 }

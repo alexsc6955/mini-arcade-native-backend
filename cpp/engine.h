@@ -54,6 +54,10 @@ namespace mini {
         // Draw text at specified position.
         void draw_text(const char* text, int x, int y, int r, int g, int b);
 
+        // Capture the current frame into an image file (BMP for now).
+        // Returns true on success, false on failure.
+        bool capture_frame(const char* path);
+
     private:
         SDL_Window* window_;
         SDL_Renderer* renderer_;

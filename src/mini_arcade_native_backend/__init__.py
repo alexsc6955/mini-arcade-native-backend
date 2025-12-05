@@ -134,3 +134,6 @@ class NativeBackend(Backend):
         # We rely on C++ side to no-op if font is missing
         r, g, b = color
         self._engine.draw_text(text, x, y, int(r), int(g), int(b))
+
+    def capture_frame(self, path: str) -> bool:
+        return self._engine.capture_frame(path)
