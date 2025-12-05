@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-12-04
+
+- Internal changes only.
+
 ## [0.2.2] - 2025-12-04
 
 - Internal changes only.
