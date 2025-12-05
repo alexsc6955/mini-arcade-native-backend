@@ -69,6 +69,9 @@ class NativeBackend(Backend):
         if self._font_path is not None:
             self._engine.load_font(self._font_path, self._font_size)
 
+    def set_clear_color(self, r: int, g: int, b: int) -> None:
+        self._engine.set_clear_color(int(r), int(g), int(b))
+
     def poll_events(self) -> list[Event]:
         """
         Poll for events from the backend and return them as a list of Event objects.
@@ -91,7 +94,14 @@ class NativeBackend(Backend):
         """End the current frame for rendering."""
         self._engine.end_frame()
 
-    def draw_rect(self, x: int, y: int, w: int, h: int):
+    def draw_rect(
+        self,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        color: tuple[int, int, int] = (255, 255, 255),
+    ):
         """
         Draw a rectangle at the specified position with given width and height.
 
@@ -107,7 +117,8 @@ class NativeBackend(Backend):
         :param h: Height of the rectangle.
         :type h: int
         """
-        self._engine.draw_rect(x, y, w, h)
+        r, g, b = color
+        self._engine.draw_rect(x, y, w, h, int(r), int(g), int(b))
 
     def draw_text(
         self,

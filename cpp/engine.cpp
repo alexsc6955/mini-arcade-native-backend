@@ -9,7 +9,8 @@ namespace mini {
         : window_(nullptr),
             renderer_(nullptr),
             initialized_(false),
-            font_(nullptr)
+            font_(nullptr),
+            clear_color_{0, 0, 0, 255}
     {
     }
 
@@ -86,14 +87,34 @@ namespace mini {
         initialized_ = true;
     }
 
+    void Engine::set_clear_color(int r, int g, int b)
+    {
+        auto clamp = [](int v) {
+            if (v < 0) return 0;
+            if (v > 255) return 255;
+            return v;
+        };
+
+        clear_color_.r = static_cast<Uint8>(clamp(r));
+        clear_color_.g = static_cast<Uint8>(clamp(g));
+        clear_color_.b = static_cast<Uint8>(clamp(b));
+        clear_color_.a = 255;
+    }
+
     void Engine::begin_frame()
     {
         if (!initialized_ || renderer_ == nullptr) {
             return;
         }
 
-        // Clear to black
-        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+        // use stored clear color instead of hard-coded black
+        SDL_SetRenderDrawColor(
+            renderer_,
+            clear_color_.r,
+            clear_color_.g,
+            clear_color_.b,
+            clear_color_.a
+        );
         SDL_RenderClear(renderer_);
     }
 
@@ -106,21 +127,29 @@ namespace mini {
         SDL_RenderPresent(renderer_);
     }
 
-    void Engine::draw_rect(int x, int y, int w, int h)
+    void Engine::draw_rect(int x, int y, int w, int h, int r, int g, int b)
     {
         if (!initialized_ || renderer_ == nullptr) {
             return;
         }
 
-        SDL_Rect rect;
-        rect.x = x;
-        rect.y = y;
-        rect.w = w;
-        rect.h = h;
+        auto clamp = [](int v) {
+            if (v < 0) return 0;
+            if (v > 255) return 255;
+            return v;
+        };
 
-        // White rectangle for now (you can parameterize later).
-        SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+        SDL_Rect rect{ x, y, w, h };
+
+        SDL_SetRenderDrawColor(
+            renderer_,
+            static_cast<Uint8>(clamp(r)),
+            static_cast<Uint8>(clamp(g)),
+            static_cast<Uint8>(clamp(b)),
+            255
+        );
         SDL_RenderFillRect(renderer_, &rect);
+
     }
 
     void Engine::draw_sprite(int /*texture_id*/, int /*x*/, int /*y*/, int /*w*/, int /*h*/)
