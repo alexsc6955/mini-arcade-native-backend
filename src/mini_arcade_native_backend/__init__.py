@@ -6,17 +6,31 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 # --- 1) Make sure Windows can find SDL2.dll when using vcpkg ------------------
 
 if sys.platform == "win32":
+    # a) If running as a frozen PyInstaller exe (e.g. DejaBounce.exe),
+    #    SDL2.dll will live next to the executable. Add that dir.
+    if getattr(sys, "frozen", False):
+        exe_dir = Path(sys.executable).resolve().parent
+        try:
+            os.add_dll_directory(str(exe_dir))
+        except (FileNotFoundError, OSError):
+            # If this somehow fails, we still try other fallbacks.
+            pass
+
+    # b) Dev / vcpkg fallback: use VCPKG_ROOT if available.
     vcpkg_root = os.environ.get("VCPKG_ROOT")
     if vcpkg_root:
         # Typical vcpkg layout: <VCPKG_ROOT>/installed/x64-windows/bin/SDL2.dll
         sdl_bin = os.path.join(vcpkg_root, "installed", "x64-windows", "bin")
         if os.path.isdir(sdl_bin):
-            # Python 3.8+ – add DLL search path before importing the extension
-            os.add_dll_directory(sdl_bin)
+            try:
+                os.add_dll_directory(sdl_bin)
+            except (FileNotFoundError, OSError):
+                pass
 
 # --- 2) Now import native extension and core types ----------------------------
 
