@@ -6,6 +6,41 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.3] - 2025-12-05
+
+### Other
+- docs: improve docstring formatting for capture_frame method in NativeBackend
+- Merge branch 'release/0.3' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.3
+
+## [0.3.2] - 2025-12-05
+
+### Added
+- add draw_rect_rgba method to Engine for RGBA rectangle drawing and update Python bindings
+- add capture_frame method to Engine and expose it in Python bindings
+- add clear color customization and update draw_rect method
+
+### Other
+- Merge branch 'release/0.3' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.3
+- Merge branch 'release/0.3' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.3
+
+## [0.3.1] - 2025-12-05
+
+### Added
+- add capture_frame method to Engine and expose it in Python bindings
+- add clear color customization and update draw_rect method
+
+### Other
+- Merge branch 'release/0.3' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.3
+
+## [0.3.0] - 2025-12-05
+
+### Added
+- add text rendering support with SDL2_ttf integration
+
+### Other
+- Merge pull request #7 from alexsc6955/feature/text_support
+- Merge release/0.2 into develop
+
 ## [0.2.3] - 2025-12-04
 
 - Internal changes only.

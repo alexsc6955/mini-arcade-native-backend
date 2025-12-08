@@ -27,14 +27,25 @@ PYBIND11_MODULE(_native, m) {
         .def("init", &mini::Engine::init,
                 py::arg("width"), py::arg("height"), py::arg("title"))
 
+        .def("set_clear_color", &mini::Engine::set_clear_color,
+                py::arg("r"), py::arg("g"), py::arg("b"))
+
         .def("begin_frame", &mini::Engine::begin_frame)
         .def("end_frame", &mini::Engine::end_frame)
 
         .def("draw_rect", &mini::Engine::draw_rect,
-                py::arg("x"), py::arg("y"), py::arg("w"), py::arg("h"))
+                py::arg("x"), py::arg("y"),
+                py::arg("w"), py::arg("h"),
+                py::arg("r"), py::arg("g"), py::arg("b"))
+
         .def("draw_sprite", &mini::Engine::draw_sprite,
                 py::arg("texture_id"), py::arg("x"), py::arg("y"),
                 py::arg("w"), py::arg("h"))
+
+        .def("draw_rect_rgba", &mini::Engine::draw_rect_rgba,
+                py::arg("x"), py::arg("y"),
+                py::arg("w"), py::arg("h"),
+                py::arg("r"), py::arg("g"), py::arg("b"), py::arg("a"))
 
         .def("load_font", &mini::Engine::load_font,
                 py::arg("path"), py::arg("pt_size"))
@@ -49,5 +60,8 @@ PYBIND11_MODULE(_native, m) {
                 py::arg("g"),
                 py::arg("b")
         )
-        .def("poll_events", &mini::Engine::poll_events);
+        .def("poll_events", &mini::Engine::poll_events)
+
+        .def("capture_frame", &mini::Engine::capture_frame,
+                py::arg("path"));
 }

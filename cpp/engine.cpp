@@ -9,7 +9,8 @@ namespace mini {
         : window_(nullptr),
             renderer_(nullptr),
             initialized_(false),
-            font_(nullptr)
+            font_(nullptr),
+            clear_color_{0, 0, 0, 255}
     {
     }
 
@@ -83,7 +84,24 @@ namespace mini {
             throw std::runtime_error(msg);
         }
 
+        // Enable alpha blending for RGBA drawing
+        SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+
         initialized_ = true;
+    }
+
+    void Engine::set_clear_color(int r, int g, int b)
+    {
+        auto clamp = [](int v) {
+            if (v < 0) return 0;
+            if (v > 255) return 255;
+            return v;
+        };
+
+        clear_color_.r = static_cast<Uint8>(clamp(r));
+        clear_color_.g = static_cast<Uint8>(clamp(g));
+        clear_color_.b = static_cast<Uint8>(clamp(b));
+        clear_color_.a = 255;
     }
 
     void Engine::begin_frame()
@@ -92,8 +110,14 @@ namespace mini {
             return;
         }
 
-        // Clear to black
-        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+        // use stored clear color instead of hard-coded black
+        SDL_SetRenderDrawColor(
+            renderer_,
+            clear_color_.r,
+            clear_color_.g,
+            clear_color_.b,
+            clear_color_.a
+        );
         SDL_RenderClear(renderer_);
     }
 
@@ -106,21 +130,29 @@ namespace mini {
         SDL_RenderPresent(renderer_);
     }
 
-    void Engine::draw_rect(int x, int y, int w, int h)
+    void Engine::draw_rect(int x, int y, int w, int h, int r, int g, int b)
     {
         if (!initialized_ || renderer_ == nullptr) {
             return;
         }
 
-        SDL_Rect rect;
-        rect.x = x;
-        rect.y = y;
-        rect.w = w;
-        rect.h = h;
+        auto clamp = [](int v) {
+            if (v < 0) return 0;
+            if (v > 255) return 255;
+            return v;
+        };
 
-        // White rectangle for now (you can parameterize later).
-        SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+        SDL_Rect rect{ x, y, w, h };
+
+        SDL_SetRenderDrawColor(
+            renderer_,
+            static_cast<Uint8>(clamp(r)),
+            static_cast<Uint8>(clamp(g)),
+            static_cast<Uint8>(clamp(b)),
+            255
+        );
         SDL_RenderFillRect(renderer_, &rect);
+
     }
 
     void Engine::draw_sprite(int /*texture_id*/, int /*x*/, int /*y*/, int /*w*/, int /*h*/)
@@ -185,6 +217,83 @@ namespace mini {
 
         SDL_RenderCopy(renderer_, texture, nullptr, &dstRect);
         SDL_DestroyTexture(texture);
+    }
+
+    void Engine::draw_rect_rgba(int x, int y, int w, int h, int r, int g, int b, int a)
+    {
+        if (!initialized_ || renderer_ == nullptr) {
+            return;
+        }
+
+        auto clamp = [](int v) {
+            if (v < 0) return 0;
+            if (v > 255) return 255;
+            return v;
+        };
+
+        SDL_Rect rect{ x, y, w, h };
+
+        SDL_SetRenderDrawColor(
+            renderer_,
+            static_cast<Uint8>(clamp(r)),
+            static_cast<Uint8>(clamp(g)),
+            static_cast<Uint8>(clamp(b)),
+            static_cast<Uint8>(clamp(a))
+        );
+        SDL_RenderFillRect(renderer_, &rect);
+    }
+
+
+    bool Engine::capture_frame(const char* path)
+    {
+        if (!initialized_ || renderer_ == nullptr) {
+            return false;
+        }
+
+        int width = 0;
+        int height = 0;
+        if (SDL_GetRendererOutputSize(renderer_, &width, &height) != 0) {
+            std::cerr << "SDL_GetRendererOutputSize Error: " << SDL_GetError() << std::endl;
+            return false;
+        }
+
+        // Create a surface to hold the pixels (32-bit RGBA)
+        SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(
+            0,
+            width,
+            height,
+            32,
+            SDL_PIXELFORMAT_ARGB8888
+        );
+
+        if (!surface) {
+            std::cerr << "SDL_CreateRGBSurfaceWithFormat Error: " << SDL_GetError() << std::endl;
+            return false;
+        }
+
+        // Read pixels from the current render target into the surface
+        if (SDL_RenderReadPixels(
+                renderer_,
+                nullptr,                        // whole screen
+                surface->format->format,
+                surface->pixels,
+                surface->pitch) != 0)
+        {
+            std::cerr << "SDL_RenderReadPixels Error: " << SDL_GetError() << std::endl;
+            SDL_FreeSurface(surface);
+            return false;
+        }
+
+        // Save as BMP (simple, no extra dependencies).
+        // Use .bmp extension in the path you pass from Python.
+        if (SDL_SaveBMP(surface, path) != 0) {
+            std::cerr << "SDL_SaveBMP Error: " << SDL_GetError() << std::endl;
+            SDL_FreeSurface(surface);
+            return false;
+        }
+
+        SDL_FreeSurface(surface);
+        return true;
     }
 
     std::vector<Event> Engine::poll_events()

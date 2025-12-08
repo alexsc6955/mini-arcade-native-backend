@@ -30,6 +30,9 @@ namespace mini {
         // Initialize the engine with a window of given width, height, and title.
         void init(int width, int height, const char* title);
 
+        // Set the clear color for the screen.
+        void set_clear_color(int r, int g, int b);
+
         // Clear the screen to a default color (black) and get ready to draw.
         void begin_frame();
 
@@ -37,7 +40,7 @@ namespace mini {
         void end_frame();
 
         // Draw a simple filled rectangle (we'll use a fixed color for now).
-        void draw_rect(int x, int y, int w, int h);
+        void draw_rect(int x, int y, int w, int h, int r, int g, int b);
 
         // Sprite drawing stub for later.
         void draw_sprite(int texture_id, int x, int y, int w, int h);
@@ -51,11 +54,19 @@ namespace mini {
         // Draw text at specified position.
         void draw_text(const char* text, int x, int y, int r, int g, int b);
 
+        // Capture the current frame into an image file (BMP for now).
+        // Returns true on success, false on failure.
+        bool capture_frame(const char* path);
+
+        // Draw a filled rectangle with RGBA color (supports transparency).
+        void draw_rect_rgba(int x, int y, int w, int h, int r, int g, int b, int a);
+
     private:
         SDL_Window* window_;
         SDL_Renderer* renderer_;
         bool initialized_;
         TTF_Font* font_;
+        SDL_Color clear_color_;
     };
 
 } // namespace mini
