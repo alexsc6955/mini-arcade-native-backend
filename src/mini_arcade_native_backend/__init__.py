@@ -53,6 +53,12 @@ _NATIVE_TO_CORE = {
     native.EventType.Quit: EventType.QUIT,
     native.EventType.KeyDown: EventType.KEYDOWN,
     native.EventType.KeyUp: EventType.KEYUP,
+    native.EventType.MouseMotion: EventType.MOUSEMOTION,
+    native.EventType.MouseButtonDown: EventType.MOUSEBUTTONDOWN,
+    native.EventType.MouseButtonUp: EventType.MOUSEBUTTONUP,
+    native.EventType.MouseWheel: EventType.MOUSEWHEEL,
+    native.EventType.WindowResized: EventType.WINDOWRESIZED,
+    native.EventType.TextInput: EventType.TEXTINPUT,
 }
 
 
@@ -108,6 +114,8 @@ class NativeBackend(Backend):
         """
         self._engine.set_clear_color(int(r), int(g), int(b))
 
+    # Justification: Many local variables needed for event mapping
+    # pylint: disable=too-many-locals
     def poll_events(self) -> list[Event]:
         """
         Poll for events from the backend and return them as a list of Event objects.
@@ -115,12 +123,54 @@ class NativeBackend(Backend):
         :return: List of Event objects representing the polled events.
         :rtype: list[Event]
         """
-        events: list[Event] = []
+        out: list[Event] = []
         for ev in self._engine.poll_events():
-            core_type = _NATIVE_TO_CORE.get(ev.type, EventType.UNKNOWN)
+            etype = _NATIVE_TO_CORE.get(ev.type, EventType.UNKNOWN)
+
+            # "0 means not present" convention from C++ side
             key = ev.key if getattr(ev, "key", 0) != 0 else None
-            events.append(Event(type=core_type, key=key))
-        return events
+
+            x = getattr(ev, "x", 0) or None
+            y = getattr(ev, "y", 0) or None
+            dx = getattr(ev, "dx", 0) or None
+            dy = getattr(ev, "dy", 0) or None
+            button = getattr(ev, "button", 0) or None
+
+            wheel_x = getattr(ev, "wheel_x", 0)
+            wheel_y = getattr(ev, "wheel_y", 0)
+            wheel = (wheel_x, wheel_y) if (wheel_x or wheel_y) else None
+
+            w = getattr(ev, "width", 0)
+            h = getattr(ev, "height", 0)
+            size = (w, h) if (w and h) else None
+
+            text = getattr(ev, "text", "") or None
+
+            scancode = getattr(ev, "scancode", 0) or None
+            mod = getattr(ev, "mod", 0) or None
+            repeat_raw = getattr(ev, "repeat", 0)
+            repeat = bool(repeat_raw) if repeat_raw else None
+
+            out.append(
+                Event(
+                    type=etype,
+                    key=key,
+                    x=x,
+                    y=y,
+                    dx=dx,
+                    dy=dy,
+                    button=button,
+                    wheel=wheel,
+                    size=size,
+                    text=text,
+                    scancode=scancode,
+                    mod=mod,
+                    repeat=repeat,
+                )
+            )
+        return out
+
+    # pylint: enable=too-many-locals
 
     def begin_frame(self):
         """Begin a new frame for rendering."""

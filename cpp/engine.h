@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <vector>
+#include <string>
 
 // A minimal 2D graphics engine binding for Python using SDL.
 namespace mini {
@@ -11,14 +12,44 @@ namespace mini {
     enum class EventType {
         Unknown = 0,
         Quit,
+
         KeyDown,
-        KeyUp
+        KeyUp,
+
+        MouseMotion,
+        MouseButtonDown,
+        MouseButtonUp,
+        MouseWheel,
+
+        WindowResized,
+        TextInput
     };
 
     // A simple event structure to pass events to Python.
     struct Event {
-        EventType type;
-        int key;  // SDL key code (e.g., 27 for ESC). 0 if not applicable.
+        EventType type = EventType::Unknown;
+
+        // Keyboard
+        int key = 0;       // SDL_Keycode
+        int scancode = 0;  // SDL_Scancode
+        int mod = 0;       // SDL_Keymod bitmask
+        int repeat = 0;    // 1 if key repeat, else 0
+
+        // Mouse
+        int x = 0;
+        int y = 0;
+        int dx = 0;        // motion relative
+        int dy = 0;
+        int button = 0;    // SDL_BUTTON_LEFT etc.
+        int wheel_x = 0;
+        int wheel_y = 0;
+
+        // Window
+        int width = 0;
+        int height = 0;
+
+        // Text input
+        std::string text;
     };
 
     // The main engine class that wraps SDL functionality.

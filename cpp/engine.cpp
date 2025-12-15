@@ -10,7 +10,8 @@ namespace mini {
             renderer_(nullptr),
             initialized_(false),
             font_(nullptr),
-            clear_color_{0, 0, 0, 255}
+            clear_color_{0, 0, 0, 255},
+            default_font_id_(-1)
     {
     }
 
@@ -86,6 +87,8 @@ namespace mini {
 
         // Enable alpha blending for RGBA drawing
         SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+
+        SDL_StartTextInput();   // <--- needed for SDL_TEXTINPUT
 
         initialized_ = true;
     }
@@ -245,7 +248,6 @@ namespace mini {
         SDL_RenderFillRect(renderer_, &rect);
     }
 
-
     bool Engine::capture_frame(const char* path)
     {
         if (!initialized_ || renderer_ == nullptr) {
@@ -305,8 +307,6 @@ namespace mini {
 
         while (SDL_PollEvent(&sdl_event)) {
             Event ev;
-            ev.type = EventType::Unknown;
-            ev.key = 0;
 
             switch (sdl_event.type) {
             case SDL_QUIT:
@@ -316,11 +316,63 @@ namespace mini {
             case SDL_KEYDOWN:
                 ev.type = EventType::KeyDown;
                 ev.key = sdl_event.key.keysym.sym;
+                ev.scancode = (int)sdl_event.key.keysym.scancode;
+                ev.mod = (int)sdl_event.key.keysym.mod;
+                ev.repeat = (int)sdl_event.key.repeat;
                 break;
 
             case SDL_KEYUP:
                 ev.type = EventType::KeyUp;
                 ev.key = sdl_event.key.keysym.sym;
+                ev.scancode = (int)sdl_event.key.keysym.scancode;
+                ev.mod = (int)sdl_event.key.keysym.mod;
+                ev.repeat = 0;
+                break;
+
+            case SDL_MOUSEMOTION:
+                ev.type = EventType::MouseMotion;
+                ev.x = sdl_event.motion.x;
+                ev.y = sdl_event.motion.y;
+                ev.dx = sdl_event.motion.xrel;
+                ev.dy = sdl_event.motion.yrel;
+                break;
+
+            case SDL_MOUSEBUTTONDOWN:
+                ev.type = EventType::MouseButtonDown;
+                ev.button = (int)sdl_event.button.button;
+                ev.x = sdl_event.button.x;
+                ev.y = sdl_event.button.y;
+                break;
+
+            case SDL_MOUSEBUTTONUP:
+                ev.type = EventType::MouseButtonUp;
+                ev.button = (int)sdl_event.button.button;
+                ev.x = sdl_event.button.x;
+                ev.y = sdl_event.button.y;
+                break;
+
+            case SDL_MOUSEWHEEL:
+                ev.type = EventType::MouseWheel;
+                ev.wheel_x = sdl_event.wheel.x;
+                ev.wheel_y = sdl_event.wheel.y;
+                // If you want "natural" direction handling, you can flip based on sdl_event.wheel.direction
+                break;
+
+            case SDL_TEXTINPUT:
+                ev.type = EventType::TextInput;
+                ev.text = sdl_event.text.text; // UTF-8
+                break;
+
+            case SDL_WINDOWEVENT:
+                if (sdl_event.window.event == SDL_WINDOWEVENT_RESIZED ||
+                    sdl_event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                {
+                    ev.type = EventType::WindowResized;
+                    ev.width = sdl_event.window.data1;
+                    ev.height = sdl_event.window.data2;
+                } else {
+                    continue; // ignore other window events
+                }
                 break;
 
             default:
@@ -328,7 +380,7 @@ namespace mini {
                 break;
             }
 
-            events.push_back(ev);
+            events.push_back(std::move(ev));
         }
 
         return events;

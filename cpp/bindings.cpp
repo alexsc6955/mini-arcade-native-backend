@@ -14,12 +14,31 @@ PYBIND11_MODULE(_native, m) {
         .value("Quit", mini::EventType::Quit)
         .value("KeyDown", mini::EventType::KeyDown)
         .value("KeyUp", mini::EventType::KeyUp)
+        .value("MouseMotion", mini::EventType::MouseMotion)
+        .value("MouseButtonDown", mini::EventType::MouseButtonDown)
+        .value("MouseButtonUp", mini::EventType::MouseButtonUp)
+        .value("MouseWheel", mini::EventType::MouseWheel)
+        .value("WindowResized", mini::EventType::WindowResized)
+        .value("TextInput", mini::EventType::TextInput)
         .export_values();
 
     // Bind the Event struct
     py::class_<mini::Event>(m, "Event")
         .def_readonly("type", &mini::Event::type)
-        .def_readonly("key", &mini::Event::key);
+        .def_readonly("key", &mini::Event::key)
+        .def_readonly("scancode", &mini::Event::scancode)
+        .def_readonly("mod", &mini::Event::mod)
+        .def_readonly("repeat", &mini::Event::repeat)
+        .def_readonly("x", &mini::Event::x)
+        .def_readonly("y", &mini::Event::y)
+        .def_readonly("dx", &mini::Event::dx)
+        .def_readonly("dy", &mini::Event::dy)
+        .def_readonly("button", &mini::Event::button)
+        .def_readonly("wheel_x", &mini::Event::wheel_x)
+        .def_readonly("wheel_y", &mini::Event::wheel_y)
+        .def_readonly("width", &mini::Event::width)
+        .def_readonly("height", &mini::Event::height)
+        .def_readonly("text", &mini::Event::text);
 
     // Bind the Engine class
     py::class_<mini::Engine>(m, "Engine")
