@@ -18,18 +18,33 @@ def setup_fake_core_and_native(monkeypatch):
     class FakeBackend:
         """Minimal base class just to satisfy inheritance."""
 
-        pass
-
     class FakeCoreEventType:
         UNKNOWN = "core_unknown"
         QUIT = "core_quit"
         KEYDOWN = "core_keydown"
         KEYUP = "core_keyup"
+        MOUSEMOTION = "core_mousemotion"
+        MOUSEBUTTONDOWN = "core_mousebuttondown"
+        MOUSEBUTTONUP = "core_mousebuttonup"
+        MOUSEWHEEL = "core_mousewheel"
+        WINDOWRESIZED = "core_windowresized"
+        TEXTINPUT = "core_textinput"
 
     @dataclass
     class FakeEvent:
         type: object
         key: object = None
+        x: object = None
+        y: object = None
+        dx: object = None
+        dy: object = None
+        button: object = None
+        wheel: object = None
+        size: object = None
+        text: object = None
+        scancode: object = None
+        mod: object = None
+        repeat: object = None
 
     fake_core.Backend = FakeBackend
     fake_core.Event = FakeEvent
@@ -45,6 +60,12 @@ def setup_fake_core_and_native(monkeypatch):
         Quit = "native_quit"
         KeyDown = "native_keydown"
         KeyUp = "native_keyup"
+        MouseMotion = "native_mousemotion"
+        MouseButtonDown = "native_mousebuttondown"
+        MouseButtonUp = "native_mousebuttonup"
+        MouseWheel = "native_mousewheel"
+        WindowResized = "native_windowresized"
+        TextInput = "native_textinput"
 
     class FakeEngine:
         def __init__(self):
@@ -226,36 +247,84 @@ def test_poll_events_maps_native_events_to_core_events_and_keys(
     backend_module,
 ):
     pkg, fake_core, fake_native = backend_module
-
     backend = pkg.NativeBackend()
 
-    # Create fake native events
     @dataclass
     class FakeNativeEvent:
         type: object
         key: int = 0
+        x: int = 0
+        y: int = 0
+        dx: int = 0
+        dy: int = 0
+        button: int = 0
+        wheel_x: int = 0
+        wheel_y: int = 0
+        width: int = 0
+        height: int = 0
+        text: str = ""
+        scancode: int = 0
+        mod: int = 0
+        repeat: int = 0
 
     engine = backend._engine
     engine._events_to_return = [
-        FakeNativeEvent(fake_native.EventType.Quit, 0),  # -> QUIT, key=None
+        FakeNativeEvent(fake_native.EventType.Quit),  # -> QUIT
         FakeNativeEvent(
-            fake_native.EventType.KeyDown, 32
+            fake_native.EventType.KeyDown, key=32
         ),  # -> KEYDOWN, key=32
-        FakeNativeEvent("something_unknown", 10),  # -> UNKNOWN, key=10
+        FakeNativeEvent(
+            fake_native.EventType.MouseMotion, x=10, y=20, dx=1, dy=-2
+        ),
+        FakeNativeEvent(
+            fake_native.EventType.MouseButtonDown, x=5, y=6, button=1
+        ),
+        FakeNativeEvent(
+            fake_native.EventType.MouseWheel, wheel_x=0, wheel_y=-1
+        ),
+        FakeNativeEvent(
+            fake_native.EventType.WindowResized, width=800, height=600
+        ),
+        FakeNativeEvent(fake_native.EventType.TextInput, text="á"),
+        FakeNativeEvent("something_unknown", key=10),  # -> UNKNOWN, key=10
     ]
 
     events = backend.poll_events()
+    assert len(events) == 8
 
-    assert len(events) == 3
-
-    # 1) Quit event, key==0 -> key should become None
+    # Quit: key 0 -> None
     assert events[0].type == fake_core.EventType.QUIT
     assert events[0].key is None
 
-    # 2) KeyDown, key!=0 passes through
+    # KeyDown: key passes through
     assert events[1].type == fake_core.EventType.KEYDOWN
     assert events[1].key == 32
 
-    # 3) Unknown type -> UNKNOWN
-    assert events[2].type == fake_core.EventType.UNKNOWN
-    assert events[2].key == 10
+    # MouseMotion: x/y/dx/dy mapped (0 becomes None; here non-zero)
+    assert events[2].type == fake_core.EventType.MOUSEMOTION
+    assert events[2].x == 10
+    assert events[2].y == 20
+    assert events[2].dx == 1
+    assert events[2].dy == -2
+
+    # MouseButtonDown
+    assert events[3].type == fake_core.EventType.MOUSEBUTTONDOWN
+    assert events[3].x == 5
+    assert events[3].y == 6
+    assert events[3].button == 1
+
+    # MouseWheel -> wheel tuple
+    assert events[4].type == fake_core.EventType.MOUSEWHEEL
+    assert events[4].wheel == (0, -1)
+
+    # WindowResized -> size tuple
+    assert events[5].type == fake_core.EventType.WINDOWRESIZED
+    assert events[5].size == (800, 600)
+
+    # TextInput -> text
+    assert events[6].type == fake_core.EventType.TEXTINPUT
+    assert events[6].text == "á"
+
+    # Unknown
+    assert events[7].type == fake_core.EventType.UNKNOWN
+    assert events[7].key == 10
