@@ -6,6 +6,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-12-15
+
+### Added
+- extend event handling with additional mouse and window events in engine and bindings
+- enhance font handling by returning font ID and updating draw_text signature
+
+### Fixed
+- update mini-arcade-core dependency version to ensure compatibility
+
+### Other
+- Merge release/0.3 into develop
+
 ## [0.3.3] - 2025-12-05
 
 ### Other
