@@ -17,8 +17,9 @@ jobs:
     with:
       release_branch: ${{ inputs.release_branch }}
       version_file: "pyproject.toml"
-      apt-deps: "libsdl2-dev"
+      apt-deps: "libsdl2-dev libsdl2-ttf-dev"
       poetry-build-args: "-f sdist"
+      build_wheels: true
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
