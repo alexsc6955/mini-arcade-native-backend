@@ -70,6 +70,7 @@ class NativeBackend(Backend):
         self._engine = native.Engine()
         self._font_path = font_path
         self._font_size = font_size
+        self._default_font_id: int | None = None
 
     def init(self, width: int, height: int, title: str):
         """
@@ -88,7 +89,9 @@ class NativeBackend(Backend):
 
         # Load font if provided
         if self._font_path is not None:
-            self._engine.load_font(self._font_path, self._font_size)
+            self._default_font_id = self._engine.load_font(
+                self._font_path, self._font_size
+            )
 
     def set_clear_color(self, r: int, g: int, b: int):
         """
@@ -192,7 +195,10 @@ class NativeBackend(Backend):
         """
         # We rely on C++ side to no-op if font is missing
         r, g, b = color
-        self._engine.draw_text(text, x, y, int(r), int(g), int(b))
+        font_id = (
+            self._default_font_id if self._default_font_id is not None else -1
+        )
+        self._engine.draw_text(text, x, y, int(r), int(g), int(b), font_id)
 
     def capture_frame(self, path: str | None = None) -> bool:
         """

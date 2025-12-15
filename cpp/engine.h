@@ -49,10 +49,10 @@ namespace mini {
         std::vector<Event> poll_events();
         
         // Load a TTF font from file at specified point size.
-        void load_font(const char* path, int pt_size);
+        int load_font(const char* path, int pt_size);
 
         // Draw text at specified position.
-        void draw_text(const char* text, int x, int y, int r, int g, int b);
+        void draw_text(const char* text, int x, int y, int r, int g, int b, int font_id = -1);
 
         // Capture the current frame into an image file (BMP for now).
         // Returns true on success, false on failure.
@@ -62,11 +62,13 @@ namespace mini {
         void draw_rect_rgba(int x, int y, int w, int h, int r, int g, int b, int a);
 
     private:
-        SDL_Window* window_;
-        SDL_Renderer* renderer_;
-        bool initialized_;
-        TTF_Font* font_;
-        SDL_Color clear_color_;
+        SDL_Window* window_; // The main application window.
+        SDL_Renderer* renderer_; // The renderer for drawing.
+        bool initialized_; // Whether the engine has been initialized.
+        TTF_Font* font_; // The current font for text rendering.
+        SDL_Color clear_color_; // The clear color for the screen.
+        std::vector<TTF_Font*> fonts_; // Loaded fonts.
+        int default_font_id_; // Default font index.
     };
 
 } // namespace mini

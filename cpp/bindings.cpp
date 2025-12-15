@@ -58,7 +58,8 @@ PYBIND11_MODULE(_native, m) {
                 py::arg("y"),
                 py::arg("r"),
                 py::arg("g"),
-                py::arg("b")
+                py::arg("b"),
+                py::arg("font_id") = -1
         )
         .def("poll_events", &mini::Engine::poll_events)
 

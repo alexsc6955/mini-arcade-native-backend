@@ -161,40 +161,47 @@ namespace mini {
     }
 
     // Load a TTF font from file at specified point size.
-    void Engine::load_font(const char* path, int pt_size)
+    int Engine::load_font(const char* path, int pt_size)
     {
         if (!initialized_) {
             throw std::runtime_error("Engine::init must be called before load_font");
         }
 
-        if (font_ != nullptr) {
-            TTF_CloseFont(font_);
-            font_ = nullptr;
+        TTF_Font* f = TTF_OpenFont(path, pt_size);
+        if (!f) {
+            throw std::runtime_error(std::string("TTF_OpenFont Error: ") + TTF_GetError());
         }
 
-        font_ = TTF_OpenFont(path, pt_size);
-        if (!font_) {
-            std::string msg = std::string("TTF_OpenFont Error: ") + TTF_GetError();
-            throw std::runtime_error(msg);
+        fonts_.push_back(f);
+        int id = static_cast<int>(fonts_.size() - 1);
+
+        // first loaded font becomes default (good default behavior)
+        if (default_font_id_ < 0) {
+            default_font_id_ = id;
         }
+
+        return id;
     }
 
     // Draw text at specified position.
-    void Engine::draw_text(const char* text, int x, int y, int r, int g, int b)
+    void Engine::draw_text(const char* text, int x, int y, int r, int g, int b, int font_id)
     {
-        if (!initialized_ || renderer_ == nullptr || font_ == nullptr) {
-            return;
-        }
+        if (!initialized_ || renderer_ == nullptr) return;
 
-        // clamp a bit to be safe
+        int idx = (font_id >= 0) ? font_id : default_font_id_;
+        if (idx < 0 || idx >= (int)fonts_.size() || fonts_[idx] == nullptr) return;
+
+        TTF_Font* font = fonts_[idx];
+
         auto clamp = [](int v) {
             if (v < 0) return 0;
             if (v > 255) return 255;
             return v;
         };
 
-        SDL_Color color = { (Uint8)clamp(r), (Uint8)clamp(g), (Uint8)clamp(b), 255 }; // white text
-        SDL_Surface* surface = TTF_RenderUTF8_Blended(font_, text, color);
+        SDL_Color color = { (Uint8)clamp(r), (Uint8)clamp(g), (Uint8)clamp(b), 255 };
+
+        SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, color);
         if (!surface) {
             std::cerr << "TTF_RenderUTF8_Blended Error: " << TTF_GetError() << std::endl;
             return;
@@ -207,12 +214,7 @@ namespace mini {
             return;
         }
 
-        SDL_Rect dstRect;
-        dstRect.x = x;
-        dstRect.y = y;
-        dstRect.w = surface->w;
-        dstRect.h = surface->h;
-
+        SDL_Rect dstRect{ x, y, surface->w, surface->h };
         SDL_FreeSurface(surface);
 
         SDL_RenderCopy(renderer_, texture, nullptr, &dstRect);
