@@ -6,6 +6,17 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.4] - 2025-12-16
+
+### Added
+- add measure_text method to Engine and expose it in NativeBackend
+- add alpha handling methods and refactor color extraction in NativeBackend
+- update draw_rect and draw_text methods to support alpha channel in color
+
+### Other
+- Merge branch 'release/0.4' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.4
+- Merge branch 'release/0.4' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.4
+
 ## [0.4.3] - 2025-12-16
 
 ### Added
