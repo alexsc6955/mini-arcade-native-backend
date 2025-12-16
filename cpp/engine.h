@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 #include <vector>
 #include <string>
+#include <utility>
 
 // A minimal 2D graphics engine binding for Python using SDL.
 namespace mini {
@@ -88,6 +89,10 @@ namespace mini {
         // Capture the current frame into an image file (BMP for now).
         // Returns true on success, false on failure.
         bool capture_frame(const char* path);
+
+        // Measure text (UTF-8) using a loaded font.
+        // Returns (width, height) in pixels. Returns (0,0) if no valid font or error.
+        std::pair<int, int> measure_text(const char* text, int font_id = -1);
 
     private:
         SDL_Window* window_; // The main application window.

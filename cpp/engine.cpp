@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <utility>
+#include <cstring>
 
 namespace mini {
 
@@ -379,6 +381,28 @@ namespace mini {
         }
 
         return events;
+    }
+
+    std::pair<int, int> Engine::measure_text(const char* text, int font_id)
+    {
+        if (!initialized_) return {0, 0};
+
+        int idx = (font_id >= 0) ? font_id : default_font_id_;
+        if (idx < 0 || idx >= (int)fonts_.size() || fonts_[idx] == nullptr) return {0, 0};
+
+        if (text == nullptr || text[0] == '\0') return {0, 0};
+
+        int w = 0;
+        int h = 0;
+
+        // TTF_SizeUTF8 returns 0 on success, -1 on error
+        if (TTF_SizeUTF8(fonts_[idx], text, &w, &h) != 0) {
+            // Optional: log error
+            // std::cerr << "TTF_SizeUTF8 Error: " << TTF_GetError() << std::endl;
+            return {0, 0};
+        }
+
+        return {w, h};
     }
 
 } // namespace mini

@@ -79,5 +79,11 @@ PYBIND11_MODULE(_native, m) {
         .def("poll_events", &mini::Engine::poll_events)
 
         .def("capture_frame", &mini::Engine::capture_frame,
-                py::arg("path"));
+                py::arg("path"))
+        .def(
+        "measure_text",
+                &mini::Engine::measure_text,
+                py::arg("text"),
+                py::arg("font_id") = -1
+        );
 }

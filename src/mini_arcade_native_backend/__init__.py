@@ -324,3 +324,15 @@ class NativeBackend(Backend):
         if path is None:
             raise ValueError("Path must be provided to capture frame.")
         return self._engine.capture_frame(path)
+
+    def measure_text(self, text: str) -> tuple[int, int]:
+        """
+        Measure text size (width, height) in pixels for the active font.
+
+        Returns (0,0) if no font is loaded (matches draw_text no-op behavior).
+        """
+        font_id = (
+            self._default_font_id if self._default_font_id is not None else -1
+        )
+        w, h = self._engine.measure_text(text, font_id)
+        return int(w), int(h)
