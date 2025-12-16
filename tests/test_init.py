@@ -94,8 +94,8 @@ def setup_fake_core_and_native(monkeypatch):
         def end_frame(self):
             self.frames.append("end")
 
-        def draw_rect(self, x, y, w, h, r, g, b):
-            self.rects.append((x, y, w, h, r, g, b))
+        def draw_rect(self, x, y, w, h, r, g, b, a):
+            self.rects.append((x, y, w, h, r, g, b, a))
 
     fake_native.EventType = FakeNativeEventType
     fake_native.Engine = FakeEngine
@@ -248,7 +248,7 @@ def test_nativebackend_draw_rect_delegates_to_engine(backend_module):
     backend = pkg.NativeBackend()
     backend.draw_rect(10, 20, 30, 40, color=(255, 0, 0))
 
-    assert backend._engine.rects == [(10, 20, 30, 40, 255, 0, 0)]
+    assert backend._engine.rects == [(10, 20, 30, 40, 255, 0, 0, 255)]
 
 
 def test_poll_events_maps_native_events_to_core_events_and_keys(
