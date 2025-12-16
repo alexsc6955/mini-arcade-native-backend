@@ -80,6 +80,33 @@ class NativeBackend(Backend):
         self._font_path = font_path
         self._font_size = font_size
         self._default_font_id: int | None = None
+        self._fonts_by_size: dict[int, int] = {}
+
+    def _get_font_id(self, font_size: int | None) -> int:
+        # No font loaded -> keep current “no-op” behavior
+        if self._font_path is None:
+            return -1
+
+        # Default font
+        if font_size is None:
+            return (
+                self._default_font_id
+                if self._default_font_id is not None
+                else -1
+            )
+
+        if font_size <= 0:
+            raise ValueError(f"font_size must be > 0, got {font_size}")
+
+        # Cached
+        cached = self._fonts_by_size.get(font_size)
+        if cached is not None:
+            return cached
+
+        # Lazily load and cache
+        font_id = self._engine.load_font(self._font_path, int(font_size))
+        self._fonts_by_size[font_size] = font_id
+        return font_id
 
     def init(self, width: int, height: int, title: str):
         """
@@ -101,6 +128,7 @@ class NativeBackend(Backend):
             self._default_font_id = self._engine.load_font(
                 self._font_path, self._font_size
             )
+            self._fonts_by_size[self._font_size] = self._default_font_id
 
     def set_clear_color(self, r: int, g: int, b: int):
         """
@@ -277,14 +305,13 @@ class NativeBackend(Backend):
         r, g, b, a = self._get_color_values(color)
         self._engine.draw_rect(x, y, w, h, r, g, b, a)
 
-    # pylint: enable=too-many-arguments,too-many-positional-arguments
-
     def draw_text(
         self,
         x: int,
         y: int,
         text: str,
         color: tuple[int, int, int] = (255, 255, 255),
+        font_size: int | None = None,
     ):
         """
         Draw text at the given position using the loaded font.
@@ -303,12 +330,12 @@ class NativeBackend(Backend):
         :type color: tuple[int, int, int]
         """
         r, g, b, a = self._get_color_values(color)
-        font_id = (
-            self._default_font_id if self._default_font_id is not None else -1
-        )
+        font_id = self._get_font_id(font_size)
         self._engine.draw_text(
             text, x, y, int(r), int(g), int(b), int(a), font_id
         )
+
+    # pylint: enable=too-many-arguments,too-many-positional-arguments
 
     def capture_frame(self, path: str | None = None) -> bool:
         """
@@ -325,14 +352,14 @@ class NativeBackend(Backend):
             raise ValueError("Path must be provided to capture frame.")
         return self._engine.capture_frame(path)
 
-    def measure_text(self, text: str) -> tuple[int, int]:
+    def measure_text(
+        self, text: str, font_size: int | None = None
+    ) -> tuple[int, int]:
         """
         Measure text size (width, height) in pixels for the active font.
 
         Returns (0,0) if no font is loaded (matches draw_text no-op behavior).
         """
-        font_id = (
-            self._default_font_id if self._default_font_id is not None else -1
-        )
+        font_id = self._get_font_id(font_size)
         w, h = self._engine.measure_text(text, font_id)
         return int(w), int(h)
