@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.2] - 2025-12-16
+
+### Added
+- enhance event handling by adding key_code to event mapping in NativeBackend
+
 ## [0.4.1] - 2025-12-15
 
 ### Added
