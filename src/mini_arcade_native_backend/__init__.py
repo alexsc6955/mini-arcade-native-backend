@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from typing import Union
 
 # --- 1) Make sure Windows can find SDL2.dll when using vcpkg ------------------
 
@@ -48,6 +49,7 @@ from . import _native as native
 
 __all__ = ["NativeBackend", "native"]
 
+Alpha = Union[float, int]
 
 _NATIVE_TO_CORE = {
     native.EventType.Unknown: EventType.UNKNOWN,
@@ -208,6 +210,43 @@ class NativeBackend(Backend):
         """End the current frame for rendering."""
         self._engine.end_frame()
 
+    @staticmethod
+    def _alpha_to_u8(alpha: Alpha | None) -> int:
+        """Convert CSS-like alpha (0..1) to uint8 (0..255)."""
+        if alpha is None:
+            return 255
+
+        # disallow booleans (since bool is a subclass of int)
+        if isinstance(alpha, bool):
+            raise TypeError("alpha must be a float in [0,1], not bool")
+
+        a = float(alpha)
+
+        # Enforce “percentage only”
+        if a < 0.0 or a > 1.0:
+            raise ValueError(f"alpha must be in [0, 1], got {alpha!r}")
+
+        return int(round(a * 255))
+
+    @staticmethod
+    def _get_color_values(color: tuple[int, ...]) -> int:
+        """
+        Extract alpha value from color tuple (r,g,b) or (r,g,b,a).
+        If missing, returns default.
+        """
+        if len(color) == 3:
+            r, g, b = color
+            a_u8 = 255
+        elif len(color) == 4:
+            r, g, b, a = color
+            a_u8 = NativeBackend._alpha_to_u8(a)
+        else:
+            raise ValueError(
+                f"Color must be (r,g,b) or (r,g,b,a), got {color!r}"
+            )
+
+        return (int(r), int(g), int(b), a_u8)
+
     # pylint: disable=too-many-arguments,too-many-positional-arguments
     def draw_rect(
         self,
@@ -235,15 +274,7 @@ class NativeBackend(Backend):
         :param color: Color of the rectangle as (r, g, b) or (r, g, b, a).
         :type color: tuple[int, ...]
         """
-        a = 255
-        if len(color) == 3:
-            r, g, b = color
-        elif len(color) == 4:
-            r, g, b, a = color
-        else:
-            raise ValueError(
-                f"Color must be (r,g,b) or (r,g,b,a), got {color!r}"
-            )
+        r, g, b, a = self._get_color_values(color)
         self._engine.draw_rect(x, y, w, h, r, g, b, a)
 
     # pylint: enable=too-many-arguments,too-many-positional-arguments
@@ -271,16 +302,7 @@ class NativeBackend(Backend):
         :param color: Color of the text as (r, g, b).
         :type color: tuple[int, int, int]
         """
-        # We rely on C++ side to no-op if font is missing
-        a = 255
-        if len(color) == 3:
-            r, g, b = color
-        elif len(color) == 4:
-            r, g, b, a = color
-        else:
-            raise ValueError(
-                f"Color must be (r,g,b) or (r,g,b,a), got {color!r}"
-            )
+        r, g, b, a = self._get_color_values(color)
         font_id = (
             self._default_font_id if self._default_font_id is not None else -1
         )
