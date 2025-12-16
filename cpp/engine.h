@@ -71,7 +71,7 @@ namespace mini {
         void end_frame();
 
         // Draw a simple filled rectangle (we'll use a fixed color for now).
-        void draw_rect(int x, int y, int w, int h, int r, int g, int b);
+        void draw_rect(int x, int y, int w, int h, int r, int g, int b, int a);
 
         // Sprite drawing stub for later.
         void draw_sprite(int texture_id, int x, int y, int w, int h);
@@ -83,14 +83,11 @@ namespace mini {
         int load_font(const char* path, int pt_size);
 
         // Draw text at specified position.
-        void draw_text(const char* text, int x, int y, int r, int g, int b, int font_id = -1);
+        void draw_text(const char* text, int x, int y, int r, int g, int b, int a, int font_id = -1);
 
         // Capture the current frame into an image file (BMP for now).
         // Returns true on success, false on failure.
         bool capture_frame(const char* path);
-
-        // Draw a filled rectangle with RGBA color (supports transparency).
-        void draw_rect_rgba(int x, int y, int w, int h, int r, int g, int b, int a);
 
     private:
         SDL_Window* window_; // The main application window.
@@ -100,6 +97,7 @@ namespace mini {
         SDL_Color clear_color_; // The clear color for the screen.
         std::vector<TTF_Font*> fonts_; // Loaded fonts.
         int default_font_id_; // Default font index.
+        int default_alpha_; // Default alpha value for drawing.
     };
 
 } // namespace mini

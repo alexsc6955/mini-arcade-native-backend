@@ -55,16 +55,11 @@ PYBIND11_MODULE(_native, m) {
         .def("draw_rect", &mini::Engine::draw_rect,
                 py::arg("x"), py::arg("y"),
                 py::arg("w"), py::arg("h"),
-                py::arg("r"), py::arg("g"), py::arg("b"))
+                py::arg("r"), py::arg("g"), py::arg("b"), py::arg("a"))
 
         .def("draw_sprite", &mini::Engine::draw_sprite,
                 py::arg("texture_id"), py::arg("x"), py::arg("y"),
                 py::arg("w"), py::arg("h"))
-
-        .def("draw_rect_rgba", &mini::Engine::draw_rect_rgba,
-                py::arg("x"), py::arg("y"),
-                py::arg("w"), py::arg("h"),
-                py::arg("r"), py::arg("g"), py::arg("b"), py::arg("a"))
 
         .def("load_font", &mini::Engine::load_font,
                 py::arg("path"), py::arg("pt_size"))
@@ -78,6 +73,7 @@ PYBIND11_MODULE(_native, m) {
                 py::arg("r"),
                 py::arg("g"),
                 py::arg("b"),
+                py::arg("a"),
                 py::arg("font_id") = -1
         )
         .def("poll_events", &mini::Engine::poll_events)

@@ -11,7 +11,8 @@ namespace mini {
             initialized_(false),
             font_(nullptr),
             clear_color_{0, 0, 0, 255},
-            default_font_id_(-1)
+            default_font_id_(-1),
+            default_alpha_(255)
     {
     }
 
@@ -36,6 +37,15 @@ namespace mini {
             SDL_Quit();
             initialized_ = false;
         }
+
+        for (TTF_Font* f : fonts_) {
+            if (f) TTF_CloseFont(f);
+        }
+        fonts_.clear();
+
+        TTF_Quit();
+        SDL_StopTextInput();
+
     }
 
     void Engine::init(int width, int height, const char* title)
@@ -133,7 +143,7 @@ namespace mini {
         SDL_RenderPresent(renderer_);
     }
 
-    void Engine::draw_rect(int x, int y, int w, int h, int r, int g, int b)
+    void Engine::draw_rect(int x, int y, int w, int h, int r, int g, int b, int a)
     {
         if (!initialized_ || renderer_ == nullptr) {
             return;
@@ -147,12 +157,15 @@ namespace mini {
 
         SDL_Rect rect{ x, y, w, h };
 
+        // alpha or default alpha
+        a = (a < 0) ? default_alpha_ : a;
+
         SDL_SetRenderDrawColor(
             renderer_,
             static_cast<Uint8>(clamp(r)),
             static_cast<Uint8>(clamp(g)),
             static_cast<Uint8>(clamp(b)),
-            255
+            static_cast<Uint8>(clamp(a))
         );
         SDL_RenderFillRect(renderer_, &rect);
 
@@ -187,7 +200,7 @@ namespace mini {
     }
 
     // Draw text at specified position.
-    void Engine::draw_text(const char* text, int x, int y, int r, int g, int b, int font_id)
+    void Engine::draw_text(const char* text, int x, int y, int r, int g, int b, int a, int font_id)
     {
         if (!initialized_ || renderer_ == nullptr) return;
 
@@ -202,7 +215,10 @@ namespace mini {
             return v;
         };
 
-        SDL_Color color = { (Uint8)clamp(r), (Uint8)clamp(g), (Uint8)clamp(b), 255 };
+
+        // alpha or default alpha
+        a = (a < 0) ? default_alpha_ : a;
+        SDL_Color color = { (Uint8)clamp(r), (Uint8)clamp(g), (Uint8)clamp(b), static_cast<Uint8>(clamp(a)) };
 
         SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, color);
         if (!surface) {
@@ -217,35 +233,14 @@ namespace mini {
             return;
         }
 
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(clamp(a)));
+
         SDL_Rect dstRect{ x, y, surface->w, surface->h };
         SDL_FreeSurface(surface);
 
         SDL_RenderCopy(renderer_, texture, nullptr, &dstRect);
         SDL_DestroyTexture(texture);
-    }
-
-    void Engine::draw_rect_rgba(int x, int y, int w, int h, int r, int g, int b, int a)
-    {
-        if (!initialized_ || renderer_ == nullptr) {
-            return;
-        }
-
-        auto clamp = [](int v) {
-            if (v < 0) return 0;
-            if (v > 255) return 255;
-            return v;
-        };
-
-        SDL_Rect rect{ x, y, w, h };
-
-        SDL_SetRenderDrawColor(
-            renderer_,
-            static_cast<Uint8>(clamp(r)),
-            static_cast<Uint8>(clamp(g)),
-            static_cast<Uint8>(clamp(b)),
-            static_cast<Uint8>(clamp(a))
-        );
-        SDL_RenderFillRect(renderer_, &rect);
     }
 
     bool Engine::capture_frame(const char* path)

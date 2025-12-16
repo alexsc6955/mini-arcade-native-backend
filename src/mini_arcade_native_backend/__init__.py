@@ -235,16 +235,16 @@ class NativeBackend(Backend):
         :param color: Color of the rectangle as (r, g, b) or (r, g, b, a).
         :type color: tuple[int, ...]
         """
+        a = 255
         if len(color) == 3:
             r, g, b = color
-            self._engine.draw_rect(x, y, w, h, r, g, b)
         elif len(color) == 4:
             r, g, b, a = color
-            self._engine.draw_rect_rgba(x, y, w, h, r, g, b, a)
         else:
             raise ValueError(
                 f"Color must be (r,g,b) or (r,g,b,a), got {color!r}"
             )
+        self._engine.draw_rect(x, y, w, h, r, g, b, a)
 
     # pylint: enable=too-many-arguments,too-many-positional-arguments
 
@@ -272,11 +272,21 @@ class NativeBackend(Backend):
         :type color: tuple[int, int, int]
         """
         # We rely on C++ side to no-op if font is missing
-        r, g, b = color
+        a = 255
+        if len(color) == 3:
+            r, g, b = color
+        elif len(color) == 4:
+            r, g, b, a = color
+        else:
+            raise ValueError(
+                f"Color must be (r,g,b) or (r,g,b,a), got {color!r}"
+            )
         font_id = (
             self._default_font_id if self._default_font_id is not None else -1
         )
-        self._engine.draw_text(text, x, y, int(r), int(g), int(b), font_id)
+        self._engine.draw_text(
+            text, x, y, int(r), int(g), int(b), int(a), font_id
+        )
 
     def capture_frame(self, path: str | None = None) -> bool:
         """
@@ -289,4 +299,6 @@ class NativeBackend(Backend):
             False otherwise.
         :rtype: bool
         """
+        if path is None:
+            raise ValueError("Path must be provided to capture frame.")
         return self._engine.capture_frame(path)
