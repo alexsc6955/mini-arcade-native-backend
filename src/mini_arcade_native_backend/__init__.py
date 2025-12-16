@@ -37,6 +37,7 @@ if sys.platform == "win32":
 # Justification: Need to import core after setting DLL path on Windows
 # pylint: disable=wrong-import-position
 from mini_arcade_core import Backend, Event, EventType
+from mini_arcade_core.keymaps.sdl import SDL_KEYCODE_TO_KEY
 
 # Justification: Importing the native extension module
 # pylint: disable=import-self,no-name-in-module
@@ -127,34 +128,64 @@ class NativeBackend(Backend):
         for ev in self._engine.poll_events():
             etype = _NATIVE_TO_CORE.get(ev.type, EventType.UNKNOWN)
 
-            # "0 means not present" convention from C++ side
-            key = ev.key if getattr(ev, "key", 0) != 0 else None
+            key = None
+            key_code = None
+            scancode = None
+            mod = None
+            repeat = None
 
-            x = getattr(ev, "x", 0) or None
-            y = getattr(ev, "y", 0) or None
-            dx = getattr(ev, "dx", 0) or None
-            dy = getattr(ev, "dy", 0) or None
-            button = getattr(ev, "button", 0) or None
+            x = y = dx = dy = None
+            button = None
+            wheel = None
+            size = None
+            text = None
 
-            wheel_x = getattr(ev, "wheel_x", 0)
-            wheel_y = getattr(ev, "wheel_y", 0)
-            wheel = (wheel_x, wheel_y) if (wheel_x or wheel_y) else None
+            if etype in (EventType.KEYDOWN, EventType.KEYUP):
+                raw_key = int(getattr(ev, "key", 0) or 0)
+                key_code = raw_key if raw_key != 0 else None
+                key = SDL_KEYCODE_TO_KEY.get(raw_key) if raw_key != 0 else None
 
-            w = getattr(ev, "width", 0)
-            h = getattr(ev, "height", 0)
-            size = (w, h) if (w and h) else None
+                scancode = (
+                    int(ev.scancode) if getattr(ev, "scancode", 0) else None
+                )
+                mod = int(ev.mod) if getattr(ev, "mod", 0) else None
 
-            text = getattr(ev, "text", "") or None
+                rep = int(getattr(ev, "repeat", 0) or 0)
+                repeat = bool(rep) if etype == EventType.KEYDOWN else None
 
-            scancode = getattr(ev, "scancode", 0) or None
-            mod = getattr(ev, "mod", 0) or None
-            repeat_raw = getattr(ev, "repeat", 0)
-            repeat = bool(repeat_raw) if repeat_raw else None
+            elif etype == EventType.MOUSEMOTION:
+                x = int(ev.x)
+                y = int(ev.y)
+                dx = int(ev.dx)
+                dy = int(ev.dy)
+
+            elif etype in (EventType.MOUSEBUTTONDOWN, EventType.MOUSEBUTTONUP):
+                button = int(ev.button) if ev.button else None
+                x = int(ev.x)
+                y = int(ev.y)
+
+            elif etype == EventType.MOUSEWHEEL:
+                wx = int(ev.wheel_x)
+                wy = int(ev.wheel_y)
+                wheel = (wx, wy) if (wx or wy) else None
+
+            elif etype == EventType.WINDOWRESIZED:
+                w = int(ev.width)
+                h = int(ev.height)
+                size = (w, h) if (w and h) else None
+
+            elif etype == EventType.TEXTINPUT:
+                t = getattr(ev, "text", "")
+                text = t if t else None
 
             out.append(
                 Event(
                     type=etype,
                     key=key,
+                    key_code=key_code,
+                    scancode=scancode,
+                    mod=mod,
+                    repeat=repeat,
                     x=x,
                     y=y,
                     dx=dx,
@@ -163,9 +194,6 @@ class NativeBackend(Backend):
                     wheel=wheel,
                     size=size,
                     text=text,
-                    scancode=scancode,
-                    mod=mod,
-                    repeat=repeat,
                 )
             )
         return out

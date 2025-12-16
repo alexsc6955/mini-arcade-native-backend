@@ -34,6 +34,7 @@ def setup_fake_core_and_native(monkeypatch):
     class FakeEvent:
         type: object
         key: object = None
+        key_code: object = None
         x: object = None
         y: object = None
         dx: object = None
@@ -51,6 +52,13 @@ def setup_fake_core_and_native(monkeypatch):
     fake_core.EventType = FakeCoreEventType
 
     sys.modules["mini_arcade_core"] = fake_core
+
+    fake_keymaps = types.ModuleType("mini_arcade_core.keymaps")
+    fake_sdl = types.ModuleType("mini_arcade_core.keymaps.sdl")
+    fake_sdl.SDL_KEYCODE_TO_KEY = {}  # or mapping your test expects
+
+    sys.modules["mini_arcade_core.keymaps"] = fake_keymaps
+    sys.modules["mini_arcade_core.keymaps.sdl"] = fake_sdl
 
     # --- Fake native extension: mini_arcade_native_backend._native -------------
     fake_native = types.ModuleType("mini_arcade_native_backend._native")
@@ -253,6 +261,7 @@ def test_poll_events_maps_native_events_to_core_events_and_keys(
     class FakeNativeEvent:
         type: object
         key: int = 0
+        key_code: int = 0
         x: int = 0
         y: int = 0
         dx: int = 0
@@ -298,7 +307,7 @@ def test_poll_events_maps_native_events_to_core_events_and_keys(
 
     # KeyDown: key passes through
     assert events[1].type == fake_core.EventType.KEYDOWN
-    assert events[1].key == 32
+    assert events[1].key_code == 32
 
     # MouseMotion: x/y/dx/dy mapped (0 becomes None; here non-zero)
     assert events[2].type == fake_core.EventType.MOUSEMOTION
@@ -327,4 +336,4 @@ def test_poll_events_maps_native_events_to_core_events_and_keys(
 
     # Unknown
     assert events[7].type == fake_core.EventType.UNKNOWN
-    assert events[7].key == 10
+    assert events[7].key_code is None
