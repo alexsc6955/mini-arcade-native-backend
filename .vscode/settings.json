@@ -77,4 +77,23 @@
     "python.analysis.autoImportCompletions": true,
     "black-formatter.importStrategy": "fromEnvironment",
     "isort.importStrategy": "fromEnvironment",
+    "cSpell.words": [
+        "etype",
+        "isort",
+        "keymaps",
+        "KEYUP",
+        "MOUSEBUTTONDOWN",
+        "MOUSEBUTTONUP",
+        "MOUSEMOTION",
+        "mypy",
+        "pybind",
+        "pylint",
+        "pytest",
+        "Rincon",
+        "rtype",
+        "scancode",
+        "scikit",
+        "venv",
+        "WINDOWRESIZED"
+    ],
 }

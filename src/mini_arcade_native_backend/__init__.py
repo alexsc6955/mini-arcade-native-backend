@@ -37,7 +37,7 @@ if sys.platform == "win32":
 
 # Justification: Need to import core after setting DLL path on Windows
 # pylint: disable=wrong-import-position
-from mini_arcade_core import Backend, Event, EventType
+from mini_arcade_core.backend import Backend, Event, EventType
 from mini_arcade_core.keymaps.sdl import SDL_KEYCODE_TO_KEY
 
 # Justification: Importing the native extension module

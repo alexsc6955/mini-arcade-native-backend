@@ -17,7 +17,7 @@ readme = "README.md"
 requires-python = ">=3.9,<3.12"
 license = { file = "LICENSE" }
 dependencies = [
-  "mini-arcade-core~=0.9",
+  "mini-arcade-core~=0.10",
 ]
 
 [project.optional-dependencies]
@@ -74,3 +74,6 @@ ignore-paths = [
   "^docs",
   "^examples",
 ]
+
+[tool.poetry]
+packages = [{ include = "mini_arcade_native_backend", from = "src" }]
