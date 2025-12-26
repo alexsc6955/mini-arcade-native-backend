@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.5] - 2025-12-16
+
+### Added
+- implement font caching and update draw_text and measure_text methods to support dynamic font sizes
+
 ## [0.4.4] - 2025-12-16
 
 ### Added
