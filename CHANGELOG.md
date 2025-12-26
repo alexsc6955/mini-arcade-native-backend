@@ -6,6 +6,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.6] - 2025-12-26
+
+### Fixed
+- update mini-arcade-core dependency version and improve import statements
+
+### Other
+- Merge branch 'release/0.4' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.4
+
 ## [0.4.5] - 2025-12-16
 
 ### Added
