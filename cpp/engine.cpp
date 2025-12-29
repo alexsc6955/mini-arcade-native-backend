@@ -105,6 +105,13 @@ namespace mini {
         initialized_ = true;
     }
 
+    
+    void Engine::set_window_title(const char* title)
+    {
+        if (!initialized_ || !window_) return;
+        SDL_SetWindowTitle(window_, title ? title : "");
+    }
+
     void Engine::set_clear_color(int r, int g, int b)
     {
         auto clamp = [](int v) {

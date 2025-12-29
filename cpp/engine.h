@@ -62,6 +62,9 @@ namespace mini {
         // Initialize the engine with a window of given width, height, and title.
         void init(int width, int height, const char* title);
 
+        // Set the window title.
+        void set_window_title(const char* title);
+
         // Set the clear color for the screen.
         void set_clear_color(int r, int g, int b);
 

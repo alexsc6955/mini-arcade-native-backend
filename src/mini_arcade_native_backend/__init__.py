@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 # --- 1) Make sure Windows can find SDL2.dll when using vcpkg ------------------
 
@@ -108,7 +108,7 @@ class NativeBackend(Backend):
         self._fonts_by_size[font_size] = font_id
         return font_id
 
-    def init(self, width: int, height: int, title: str):
+    def init(self, width: int, height: int, title: Optional[str] = None):
         """
         Initialize the backend with a window of given width, height, and title.
 
@@ -119,8 +119,10 @@ class NativeBackend(Backend):
         :type height: int
 
         :param title: Title of the window.
-        :type title: str
+        :type title: Optional[str]
         """
+        if title is None:
+            title = ""
         self._engine.init(width, height, title)
 
         # Load font if provided
@@ -129,6 +131,15 @@ class NativeBackend(Backend):
                 self._font_path, self._font_size
             )
             self._fonts_by_size[self._font_size] = self._default_font_id
+
+    def set_window_title(self, title: str):
+        """
+        Set the window title.
+
+        :param title: Title of the window.
+        :type title: str
+        """
+        self._engine.set_window_title(title)
 
     def set_clear_color(self, r: int, g: int, b: int):
         """
