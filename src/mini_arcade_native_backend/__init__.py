@@ -37,13 +37,26 @@ if sys.platform == "win32":
 
 # Justification: Need to import core after setting DLL path on Windows
 # pylint: disable=wrong-import-position
-from mini_arcade_core.backend import Backend
-from mini_arcade_core.backend.events import Event, EventType
-from mini_arcade_core.backend.sdl_map import SDL_KEYCODE_TO_KEY
+# Justification: When mini-arcade-core is installed in editable mode, import-error
+# false positive can occur.
+# pylint: disable=import-error
+from mini_arcade_core.backend import (  # pyright: ignore[reportMissingImports]
+    Backend,
+)
+from mini_arcade_core.backend.events import (  # pyright: ignore[reportMissingImports]
+    Event,
+    EventType,
+)
+from mini_arcade_core.backend.sdl_map import (  # pyright: ignore[reportMissingImports]
+    SDL_KEYCODE_TO_KEY,
+)
 
 # Justification: Importing the native extension module
 # pylint: disable=import-self,no-name-in-module
 from . import _native as native
+
+# pylint: enable=import-error
+
 
 # --- 2) Now import core + define NativeBackend as before ---
 
