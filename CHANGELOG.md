@@ -6,6 +6,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-01-21
+
+### Added
+- add set_window_title method to Engine and update init method to accept optional title
+
+### Fixed
+- Update dependencies and improve import handling for mini-arcade-core
+- update import statements for Event and SDL_KEYCODE_TO_KEY to improve clarity
+
+### Other
+- Merge branch 'develop' into release/0.5
+
 ## [0.4.6] - 2025-12-26
 
 ### Fixed
