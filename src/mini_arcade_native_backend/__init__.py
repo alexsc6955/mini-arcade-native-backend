@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
@@ -42,6 +43,7 @@ if sys.platform == "win32":
 # pylint: disable=import-error
 from mini_arcade_core.backend import (  # pyright: ignore[reportMissingImports]
     Backend,
+    WindowSettings,
 )
 from mini_arcade_core.backend.events import (  # pyright: ignore[reportMissingImports]
     Event,
@@ -79,22 +81,41 @@ _NATIVE_TO_CORE = {
 }
 
 
+@dataclass
+class BackendSettings:
+    """
+    Settings for the NativeBackend.
+
+    :ivar font_path (Optional[str]): Optional path to a TTF font file to load.
+    :ivar font_size (int): Font size in points to use when loading the font.
+    :ivar sounds (Optional[dict[str, str]]): Optional dictionary mapping sound IDs to file paths.
+    """
+
+    font_path: Optional[str] = None
+    font_size: int = 24
+    sounds: Optional[dict[str, str]] = None  # sound_id -> path
+
+
 class NativeBackend(Backend):
     """Adapter that makes the C++ Engine usable as a mini-arcade backend."""
 
-    def __init__(self, font_path: str | None = None, font_size: int = 24):
+    def __init__(self, backend_settings: BackendSettings | None = None):
         """
-        :param font_path: Optional path to a TTF font file to load.
-        :type font_path: str | None
-
-        :param font_size: Font size in points to use when loading the font.
-        :type font_size: int
+        :param backend_settings: Optional settings for the backend.
+        :type backend_settings: BackendSettings | None
         """
         self._engine = native.Engine()
-        self._font_path = font_path
-        self._font_size = font_size
+
+        self._font_path = (
+            backend_settings.font_path if backend_settings else None
+        )
+        self._font_size = (
+            backend_settings.font_size if backend_settings else 24
+        )
         self._default_font_id: int | None = None
         self._fonts_by_size: dict[int, int] = {}
+
+        self._sounds = backend_settings.sounds if backend_settings else None
 
     def _get_font_id(self, font_size: int | None) -> int:
         # No font loaded -> keep current “no-op” behavior
@@ -122,22 +143,15 @@ class NativeBackend(Backend):
         self._fonts_by_size[font_size] = font_id
         return font_id
 
-    def init(self, width: int, height: int, title: Optional[str] = None):
+    def init(self, window_settings: WindowSettings):
         """
         Initialize the backend with a window of given width, height, and title.
 
-        :param width: Width of the window in pixels.
-        :type width: int
-
-        :param height: Height of the window in pixels.
-        :type height: int
-
-        :param title: Title of the window.
-        :type title: Optional[str]
+        :param window_settings: Settings for the backend window.
+        :type window_settings: WindowSettings
         """
-        if title is None:
-            title = ""
-        self._engine.init(width, height, title)
+        title = ""
+        self._engine.init(window_settings.width, window_settings.height, title)
 
         # Load font if provided
         if self._font_path is not None:
@@ -145,6 +159,11 @@ class NativeBackend(Backend):
                 self._font_path, self._font_size
             )
             self._fonts_by_size[self._font_size] = self._default_font_id
+
+        # Load sounds if provided
+        if self._sounds is not None:
+            for sound_id, path in self._sounds.items():
+                self.load_sound(sound_id, path)
 
     def set_window_title(self, title: str):
         """
@@ -388,3 +407,53 @@ class NativeBackend(Backend):
         font_id = self._get_font_id(font_size)
         w, h = self._engine.measure_text(text, font_id)
         return int(w), int(h)
+
+    def init_audio(
+        self, frequency: int = 44100, channels: int = 2, chunk_size: int = 2048
+    ):
+        """Initialize SDL_mixer audio."""
+        self._engine.init_audio(int(frequency), int(channels), int(chunk_size))
+
+    def shutdown_audio(self):
+        """Shutdown SDL_mixer audio and free loaded sounds."""
+        self._engine.shutdown_audio()
+
+    def load_sound(self, sound_id: str, path: str):
+        """
+        Load a WAV sound and store it by ID.
+        Example: backend.load_sound("hit", "assets/sfx/hit.wav")
+        """
+        if not sound_id:
+            raise ValueError("sound_id cannot be empty")
+
+        p = Path(path)
+        if not p.exists():
+            raise FileNotFoundError(f"Sound file not found: {p}")
+
+        self._engine.load_sound(sound_id, str(p))
+
+    def play_sound(self, sound_id: str, loops: int = 0):
+        """
+        Play a loaded sound.
+        loops=0 => play once
+        loops=-1 => infinite loop
+        loops=1 => play twice (SDL convention)
+        """
+        self._engine.play_sound(sound_id, int(loops))
+
+    def set_master_volume(self, volume: int):
+        """
+        Master volume: 0..128
+        """
+        self._engine.set_master_volume(int(volume))
+
+    def set_sound_volume(self, sound_id: str, volume: int):
+        """
+        Per-sound volume: 0..128
+        """
+        self._engine.set_sound_volume(sound_id, int(volume))
+
+    def stop_all_sounds(self):
+        """Stop all channels."""
+        self._engine.stop_all_sounds()
+        self._engine.stop_all_sounds()

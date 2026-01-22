@@ -11,7 +11,6 @@ namespace mini {
         : window_(nullptr),
             renderer_(nullptr),
             initialized_(false),
-            font_(nullptr),
             clear_color_{0, 0, 0, 255},
             default_font_id_(-1),
             default_alpha_(255)
@@ -20,10 +19,12 @@ namespace mini {
 
     Engine::~Engine()
     {
-        if (font_ != nullptr) {
-            TTF_CloseFont(font_);
-            font_ = nullptr;
+        shutdown_audio();
+
+        for (TTF_Font* f : fonts_) {
+            if (f) TTF_CloseFont(f);
         }
+        fonts_.clear();
 
         if (renderer_ != nullptr) {
             SDL_DestroyRenderer(renderer_);
@@ -35,18 +36,13 @@ namespace mini {
             window_ = nullptr;
         }
 
+        SDL_StopTextInput();
+
         if (initialized_) {
+            TTF_Quit();
             SDL_Quit();
             initialized_ = false;
         }
-
-        for (TTF_Font* f : fonts_) {
-            if (f) TTF_CloseFont(f);
-        }
-        fonts_.clear();
-
-        TTF_Quit();
-        SDL_StopTextInput();
 
     }
 
@@ -411,5 +407,119 @@ namespace mini {
 
         return {w, h};
     }
+
+    void Engine::init_audio(int frequency, int channels, int chunk_size)
+    {
+        if (audio_initialized_) return;
+
+        // Make sure SDL audio subsystem is enabled
+        if ((SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO) == 0) {
+            if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+                throw std::runtime_error(std::string("SDL_InitSubSystem(AUDIO) Error: ") + SDL_GetError());
+            }
+        }
+
+        if (Mix_OpenAudio(frequency, MIX_DEFAULT_FORMAT, channels, chunk_size) != 0) {
+            throw std::runtime_error(std::string("Mix_OpenAudio Error: ") + Mix_GetError());
+        }
+
+        // Optional: allow OGG/MP3 decoding if you want
+        // Mix_Init(MIX_INIT_OGG | MIX_INIT_MP3);
+
+        Mix_AllocateChannels(16);           // plenty for pong
+        Mix_Volume(-1, master_volume_);     // -1 = all channels
+
+        audio_initialized_ = true;
+    }
+
+    void Engine::shutdown_audio()
+    {
+        if (!audio_initialized_) return;
+
+        stop_all_sounds();
+
+        for (auto& kv : sounds_) {
+            if (kv.second) {
+                Mix_FreeChunk(kv.second);
+            }
+        }
+        sounds_.clear();
+
+        Mix_CloseAudio();
+        // Mix_Quit(); // if you used Mix_Init
+
+        audio_initialized_ = false;
+    }
+
+    void Engine::load_sound(const std::string& sound_id, const std::string& path)
+    {
+        if (!audio_initialized_) {
+            // auto-init so Python doesn't need to care
+            init_audio();
+        }
+
+        if (sound_id.empty()) {
+            throw std::runtime_error("load_sound: sound_id is empty");
+        }
+
+        // If already loaded, free it first (support hot reload)
+        auto it = sounds_.find(sound_id);
+        if (it != sounds_.end() && it->second) {
+            Mix_FreeChunk(it->second);
+            it->second = nullptr;
+        }
+
+        Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
+        if (!chunk) {
+            throw std::runtime_error(std::string("Mix_LoadWAV Error: ") + Mix_GetError());
+        }
+
+        sounds_[sound_id] = chunk;
+    }
+
+    void Engine::play_sound(const std::string& sound_id, int loops)
+    {
+        if (!audio_initialized_) {
+            init_audio();
+        }
+
+        auto it = sounds_.find(sound_id);
+        if (it == sounds_.end() || it->second == nullptr) {
+            // be forgiving: if not preloaded, just do nothing
+            // (or throw if you want strict behavior)
+            return;
+        }
+
+        Mix_Chunk* chunk = it->second;
+
+        // -1 channel = pick first free channel
+        Mix_PlayChannel(-1, chunk, loops);
+    }
+
+    void Engine::set_master_volume(int volume)
+    {
+        if (volume < 0) volume = 0;
+        if (volume > MIX_MAX_VOLUME) volume = MIX_MAX_VOLUME;
+
+        master_volume_ = volume;
+        Mix_Volume(-1, master_volume_); // all channels
+    }
+
+    void Engine::set_sound_volume(const std::string& sound_id, int volume)
+    {
+        if (volume < 0) volume = 0;
+        if (volume > MIX_MAX_VOLUME) volume = MIX_MAX_VOLUME;
+
+        auto it = sounds_.find(sound_id);
+        if (it == sounds_.end() || it->second == nullptr) return;
+
+        Mix_VolumeChunk(it->second, volume);
+    }
+
+    void Engine::stop_all_sounds()
+    {
+        Mix_HaltChannel(-1);
+    }
+
 
 } // namespace mini

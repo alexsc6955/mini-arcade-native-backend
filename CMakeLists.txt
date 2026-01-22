@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(pybind11 CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_ttf CONFIG REQUIRED)
+find_package(SDL2_mixer CONFIG REQUIRED) 
 
 set(TARGET_NAME _native)
 
@@ -19,7 +20,7 @@ pybind11_add_module(${TARGET_NAME}
     cpp/engine.cpp
 )
 
-target_link_libraries(${TARGET_NAME} PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+target_link_libraries(${TARGET_NAME} PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf SDL2_mixer::SDL2_mixer)
 
 # Install the compiled extension into the Python package directory
 # so it ends up as mini_arcade_native_backend/_native.*.pyd

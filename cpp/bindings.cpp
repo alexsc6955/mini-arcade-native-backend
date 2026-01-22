@@ -89,5 +89,29 @@ PYBIND11_MODULE(_native, m) {
                         &mini::Engine::measure_text,
                         py::arg("text"),
                         py::arg("font_id") = -1
-                );
+                )
+
+                .def("init_audio", &mini::Engine::init_audio,
+                        py::arg("frequency") = 44100,
+                        py::arg("channels") = 2,
+                        py::arg("chunk_size") = 2048)
+
+                .def("shutdown_audio", &mini::Engine::shutdown_audio) 
+
+                .def("load_sound", &mini::Engine::load_sound,
+                        py::arg("sound_id"),
+                        py::arg("path"))
+
+                .def("play_sound", &mini::Engine::play_sound,
+                        py::arg("sound_id"),
+                        py::arg("loops") = 0)
+
+                .def("set_master_volume", &mini::Engine::set_master_volume,
+                        py::arg("volume"))
+
+                .def("set_sound_volume", &mini::Engine::set_sound_volume,
+                        py::arg("sound_id"),
+                        py::arg("volume"))
+
+                .def("stop_all_sounds", &mini::Engine::stop_all_sounds);
 }
