@@ -516,14 +516,14 @@ files = [
 
 [[package]]
 name = "mini-arcade-core"
-version = "1.0.0"
+version = "1.1.1"
 description = "Tiny scene-based game loop core for small arcade games."
 optional = false
 python-versions = "<3.12,>=3.9"
 groups = ["main"]
 files = [
-    {file = "mini_arcade_core-1.0.0-py3-none-any.whl", hash = "sha256:16ec8b11e6c6c7c6fc414d872d03934f2f7df01b5ffaf8515af98ab081507b07"},
-    {file = "mini_arcade_core-1.0.0.tar.gz", hash = "sha256:3565073c6f3896a9a23b347745d33ddb374b2cb19b6a4001c31a31f66690923e"},
+    {file = "mini_arcade_core-1.1.1-py3-none-any.whl", hash = "sha256:cd487278b33ba77e80acfdc895a77a76cc1d07f5c800a26b7537e18aaa97f00e"},
+    {file = "mini_arcade_core-1.1.1.tar.gz", hash = "sha256:b3b81a3adefaaf2b5438bc773ed364a5cf997e7f00a67ef3fc8be9d40bdbc61f"},
 ]
 
 [package.dependencies]
@@ -1001,4 +1001,4 @@ dev = ["black", "isort", "mypy", "pylint", "pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.12"
-content-hash = "36a9b75ca1c71a10eb85ee901a0df5f279b1433575e1f797b11d5c7efb875e7b"
+content-hash = "049cf6813d766ae9a7c9ab36a2ef36d24fce8da7a19ffa70200461aef112012d"
