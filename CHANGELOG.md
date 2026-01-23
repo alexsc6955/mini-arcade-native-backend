@@ -6,6 +6,46 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-01-23
+
+- Internal changes only.
+
+## [0.5.2] - 2026-01-23
+
+### Added
+- add window resizing and clipping functions to Engine and update bindings
+- add audio management functions to Engine and integrate with NativeBackend
+
+### Fixed
+- update apt dependencies to include libsdl2-mixer-dev for CI and release workflows
+
+### Changed
+- add TODO for backend interface refactoring to improve structure
+
+## [0.5.1] - 2026-01-23
+
+### Added
+- add window resizing and clipping functions to Engine and update bindings
+- add audio management functions to Engine and integrate with NativeBackend
+
+### Fixed
+- update apt dependencies to include libsdl2-mixer-dev for CI and release workflows
+
+### Changed
+- add TODO for backend interface refactoring to improve structure
+
+## [0.5.0] - 2026-01-21
+
+### Added
+- add set_window_title method to Engine and update init method to accept optional title
+
+### Fixed
+- Update dependencies and improve import handling for mini-arcade-core
+- update import statements for Event and SDL_KEYCODE_TO_KEY to improve clarity
+
+### Other
+- Merge branch 'develop' into release/0.5
+
 ## [0.4.6] - 2025-12-26
 
 ### Fixed

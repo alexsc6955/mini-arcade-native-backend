@@ -11,7 +11,6 @@ namespace mini {
         : window_(nullptr),
             renderer_(nullptr),
             initialized_(false),
-            font_(nullptr),
             clear_color_{0, 0, 0, 255},
             default_font_id_(-1),
             default_alpha_(255)
@@ -20,10 +19,12 @@ namespace mini {
 
     Engine::~Engine()
     {
-        if (font_ != nullptr) {
-            TTF_CloseFont(font_);
-            font_ = nullptr;
+        shutdown_audio();
+
+        for (TTF_Font* f : fonts_) {
+            if (f) TTF_CloseFont(f);
         }
+        fonts_.clear();
 
         if (renderer_ != nullptr) {
             SDL_DestroyRenderer(renderer_);
@@ -35,18 +36,13 @@ namespace mini {
             window_ = nullptr;
         }
 
+        SDL_StopTextInput();
+
         if (initialized_) {
+            TTF_Quit();
             SDL_Quit();
             initialized_ = false;
         }
-
-        for (TTF_Font* f : fonts_) {
-            if (f) TTF_CloseFont(f);
-        }
-        fonts_.clear();
-
-        TTF_Quit();
-        SDL_StopTextInput();
 
     }
 
@@ -72,7 +68,7 @@ namespace mini {
             SDL_WINDOWPOS_CENTERED,
             width,
             height,
-            SDL_WINDOW_SHOWN
+            SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE
         );
 
         if (window_ == nullptr) {
@@ -87,6 +83,7 @@ namespace mini {
             -1,
             SDL_RENDERER_ACCELERATED
         );
+        // SDL_RenderSetLogicalSize(renderer_, width, height);
 
         if (renderer_ == nullptr) {
             std::string msg = std::string("SDL_CreateRenderer Error: ") + SDL_GetError();
@@ -105,7 +102,6 @@ namespace mini {
         initialized_ = true;
     }
 
-    
     void Engine::set_window_title(const char* title)
     {
         if (!initialized_ || !window_) return;
@@ -309,6 +305,21 @@ namespace mini {
         std::vector<Event> events;
         SDL_Event sdl_event;
 
+        auto scale_mouse = [&](int &x, int &y, int &dx, int &dy) {
+            int ww=0, wh=0, rw=0, rh=0;
+            SDL_GetWindowSize(window_, &ww, &wh);
+            SDL_GetRendererOutputSize(renderer_, &rw, &rh);
+
+            if (ww > 0 && wh > 0) {
+                float sx = (float)rw / (float)ww;
+                float sy = (float)rh / (float)wh;
+                x  = (int)lroundf(x  * sx);
+                y  = (int)lroundf(y  * sy);
+                dx = (int)lroundf(dx * sx);
+                dy = (int)lroundf(dy * sy);
+            }
+        };
+
         while (SDL_PollEvent(&sdl_event)) {
             Event ev;
 
@@ -339,6 +350,7 @@ namespace mini {
                 ev.y = sdl_event.motion.y;
                 ev.dx = sdl_event.motion.xrel;
                 ev.dy = sdl_event.motion.yrel;
+                scale_mouse(ev.x, ev.y, ev.dx, ev.dy);
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
@@ -353,6 +365,7 @@ namespace mini {
                 ev.button = (int)sdl_event.button.button;
                 ev.x = sdl_event.button.x;
                 ev.y = sdl_event.button.y;
+                scale_mouse(ev.x, ev.y, ev.dx, ev.dy);
                 break;
 
             case SDL_MOUSEWHEEL:
@@ -372,8 +385,14 @@ namespace mini {
                     sdl_event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                 {
                     ev.type = EventType::WindowResized;
-                    ev.width = sdl_event.window.data1;
-                    ev.height = sdl_event.window.data2;
+                    int rw=0, rh=0;
+                    if (renderer_ && SDL_GetRendererOutputSize(renderer_, &rw, &rh) == 0) {
+                        ev.width = rw;
+                        ev.height = rh;
+                    } else {
+                        ev.width = sdl_event.window.data1;
+                        ev.height = sdl_event.window.data2;
+                    }
                 } else {
                     continue; // ignore other window events
                 }
@@ -410,6 +429,142 @@ namespace mini {
         }
 
         return {w, h};
+    }
+
+    void Engine::init_audio(int frequency, int channels, int chunk_size)
+    {
+        if (audio_initialized_) return;
+
+        // Make sure SDL audio subsystem is enabled
+        if ((SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO) == 0) {
+            if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+                throw std::runtime_error(std::string("SDL_InitSubSystem(AUDIO) Error: ") + SDL_GetError());
+            }
+        }
+
+        if (Mix_OpenAudio(frequency, MIX_DEFAULT_FORMAT, channels, chunk_size) != 0) {
+            throw std::runtime_error(std::string("Mix_OpenAudio Error: ") + Mix_GetError());
+        }
+
+        // Optional: allow OGG/MP3 decoding if you want
+        // Mix_Init(MIX_INIT_OGG | MIX_INIT_MP3);
+
+        Mix_AllocateChannels(16);           // plenty for pong
+        Mix_Volume(-1, master_volume_);     // -1 = all channels
+
+        audio_initialized_ = true;
+    }
+
+    void Engine::shutdown_audio()
+    {
+        if (!audio_initialized_) return;
+
+        stop_all_sounds();
+
+        for (auto& kv : sounds_) {
+            if (kv.second) {
+                Mix_FreeChunk(kv.second);
+            }
+        }
+        sounds_.clear();
+
+        Mix_CloseAudio();
+        // Mix_Quit(); // if you used Mix_Init
+
+        audio_initialized_ = false;
+    }
+
+    void Engine::load_sound(const std::string& sound_id, const std::string& path)
+    {
+        if (!audio_initialized_) {
+            // auto-init so Python doesn't need to care
+            init_audio();
+        }
+
+        if (sound_id.empty()) {
+            throw std::runtime_error("load_sound: sound_id is empty");
+        }
+
+        // If already loaded, free it first (support hot reload)
+        auto it = sounds_.find(sound_id);
+        if (it != sounds_.end() && it->second) {
+            Mix_FreeChunk(it->second);
+            it->second = nullptr;
+        }
+
+        Mix_Chunk* chunk = Mix_LoadWAV(path.c_str());
+        if (!chunk) {
+            throw std::runtime_error(std::string("Mix_LoadWAV Error: ") + Mix_GetError());
+        }
+
+        sounds_[sound_id] = chunk;
+    }
+
+    void Engine::play_sound(const std::string& sound_id, int loops)
+    {
+        if (!audio_initialized_) {
+            init_audio();
+        }
+
+        auto it = sounds_.find(sound_id);
+        if (it == sounds_.end() || it->second == nullptr) {
+            // be forgiving: if not preloaded, just do nothing
+            // (or throw if you want strict behavior)
+            return;
+        }
+
+        Mix_Chunk* chunk = it->second;
+
+        // -1 channel = pick first free channel
+        Mix_PlayChannel(-1, chunk, loops);
+    }
+
+    void Engine::set_master_volume(int volume)
+    {
+        if (volume < 0) volume = 0;
+        if (volume > MIX_MAX_VOLUME) volume = MIX_MAX_VOLUME;
+
+        master_volume_ = volume;
+        Mix_Volume(-1, master_volume_); // all channels
+    }
+
+    void Engine::set_sound_volume(const std::string& sound_id, int volume)
+    {
+        if (volume < 0) volume = 0;
+        if (volume > MIX_MAX_VOLUME) volume = MIX_MAX_VOLUME;
+
+        auto it = sounds_.find(sound_id);
+        if (it == sounds_.end() || it->second == nullptr) return;
+
+        Mix_VolumeChunk(it->second, volume);
+    }
+
+    void Engine::stop_all_sounds()
+    {
+        Mix_HaltChannel(-1);
+    }
+
+    void Engine::resize_window(int width, int height)
+    {
+        if (!initialized_ || !window_) return;
+        SDL_SetWindowSize(window_, width, height);
+
+        // if (renderer_) {
+        //     SDL_RenderSetLogicalSize(renderer_, width, height);
+        // }
+    }
+
+    void Engine::set_clip_rect(int x, int y, int w, int h)
+    {
+        if (!initialized_ || renderer_ == nullptr) return;
+        SDL_Rect r{ x, y, w, h };
+        SDL_RenderSetClipRect(renderer_, &r);
+    }
+
+    void Engine::clear_clip_rect()
+    {
+        if (!initialized_ || renderer_ == nullptr) return;
+        SDL_RenderSetClipRect(renderer_, nullptr);
     }
 
 } // namespace mini

@@ -17,7 +17,7 @@ jobs:
     with:
       release_branch: ${{ inputs.release_branch }}
       version_file: "pyproject.toml"
-      apt-deps: "libsdl2-dev libsdl2-ttf-dev"
+      apt-deps: "libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev"
       poetry-build-args: "-f sdist"
       build_wheels: true
     secrets:

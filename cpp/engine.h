@@ -2,6 +2,8 @@
 
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <utility>
@@ -97,15 +99,41 @@ namespace mini {
         // Returns (width, height) in pixels. Returns (0,0) if no valid font or error.
         std::pair<int, int> measure_text(const char* text, int font_id = -1);
 
+        // --- Audio ---
+        // Initialize audio subsystem.
+        void init_audio(int frequency = 44100, int channels = 2, int chunk_size = 2048);
+        // Shutdown audio subsystem.
+        void shutdown_audio();
+
+        // Load, play, and manage sounds.
+        void load_sound(const std::string& sound_id, const std::string& path);
+        // Play a loaded sound by its ID.
+        void play_sound(const std::string& sound_id, int loops = 0);
+        // Set the volume for a specific sound (0..128).
+        void set_sound_volume(const std::string& sound_id, int volume); // 0..128
+        // Set the master volume for all sounds (0..128).
+        void set_master_volume(int volume); // 0..128
+        // Stop all currently playing sounds.
+        void stop_all_sounds();
+
+        // Resize the application window.
+        void resize_window(int width, int height);
+        // Set clipping rectangle for rendering.
+        void set_clip_rect(int x, int y, int w, int h);
+        // Clear clipping rectangle (disable clipping).
+        void clear_clip_rect();
+
     private:
         SDL_Window* window_; // The main application window.
         SDL_Renderer* renderer_; // The renderer for drawing.
         bool initialized_; // Whether the engine has been initialized.
-        TTF_Font* font_; // The current font for text rendering.
         SDL_Color clear_color_; // The clear color for the screen.
         std::vector<TTF_Font*> fonts_; // Loaded fonts.
         int default_font_id_; // Default font index.
         int default_alpha_; // Default alpha value for drawing.
+        bool audio_initialized_ = false; // Whether audio subsystem is initialized.
+        int master_volume_ = MIX_MAX_VOLUME; // 128 is max volume
+        std::unordered_map<std::string, Mix_Chunk*> sounds_; // Audio data
     };
 
 } // namespace mini
