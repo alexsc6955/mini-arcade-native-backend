@@ -96,6 +96,9 @@ class BackendSettings:
     sounds: Optional[dict[str, str]] = None  # sound_id -> path
 
 
+# TODO: Refactor backend interface into smaller protocols?
+# Justification: Many public methods needed for backend interface
+# pylint: disable=too-many-public-methods,too-many-instance-attributes
 class NativeBackend(Backend):
     """Adapter that makes the C++ Engine usable as a mini-arcade backend."""
 
