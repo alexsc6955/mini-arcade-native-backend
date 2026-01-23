@@ -6,6 +6,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-01-23
+
+### Added
+- add window resizing and clipping functions to Engine and update bindings
+- add audio management functions to Engine and integrate with NativeBackend
+
+### Fixed
+- update apt dependencies to include libsdl2-mixer-dev for CI and release workflows
+
+### Changed
+- add TODO for backend interface refactoring to improve structure
+
 ## [0.5.0] - 2026-01-21
 
 ### Added
