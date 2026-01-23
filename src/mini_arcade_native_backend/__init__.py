@@ -117,6 +117,10 @@ class NativeBackend(Backend):
 
         self._sounds = backend_settings.sounds if backend_settings else None
 
+        self._vp_offset_x = 0
+        self._vp_offset_y = 0
+        self._vp_scale = 1.0
+
     def _get_font_id(self, font_size: int | None) -> int:
         # No font loaded -> keep current “no-op” behavior
         if self._font_path is None:
@@ -347,7 +351,12 @@ class NativeBackend(Backend):
         :type color: tuple[int, ...]
         """
         r, g, b, a = self._get_color_values(color)
-        self._engine.draw_rect(x, y, w, h, r, g, b, a)
+        sx = int(round(self._vp_offset_x + x * self._vp_scale))  # top-left x
+        sy = int(round(self._vp_offset_y + y * self._vp_scale))  # top-left y
+        sw = int(round(w * self._vp_scale))  # width
+        sh = int(round(h * self._vp_scale))  # height
+        self._engine.draw_rect(sx, sy, sw, sh, r, g, b, a)
+        # self._engine.draw_rect(x, y, w, h, r, g, b, a)
 
     def draw_text(
         self,
@@ -375,9 +384,22 @@ class NativeBackend(Backend):
         """
         r, g, b, a = self._get_color_values(color)
         font_id = self._get_font_id(font_size)
+        sx = int(round(self._vp_offset_x + x * self._vp_scale))
+        sy = int(round(self._vp_offset_y + y * self._vp_scale))
+
+        # optional but recommended: scale font size too
+        if font_size is not None:
+            scaled = max(8, int(round(font_size * self._vp_scale)))
+        else:
+            scaled = None
+
+        font_id = self._get_font_id(scaled)
         self._engine.draw_text(
-            text, x, y, int(r), int(g), int(b), int(a), font_id
+            text, sx, sy, int(r), int(g), int(b), int(a), font_id
         )
+        # self._engine.draw_text(
+        #     text, x, y, int(r), int(g), int(b), int(a), font_id
+        # )
 
     # pylint: enable=too-many-arguments,too-many-positional-arguments
 
@@ -456,4 +478,24 @@ class NativeBackend(Backend):
     def stop_all_sounds(self):
         """Stop all channels."""
         self._engine.stop_all_sounds()
-        self._engine.stop_all_sounds()
+
+    def set_viewport_transform(
+        self, offset_x: int, offset_y: int, scale: float
+    ) -> None:
+        self._vp_offset_x = int(offset_x)
+        self._vp_offset_y = int(offset_y)
+        self._vp_scale = float(scale)
+
+    def clear_viewport_transform(self) -> None:
+        self._vp_offset_x = 0
+        self._vp_offset_y = 0
+        self._vp_scale = 1.0
+
+    def resize_window(self, width: int, height: int) -> None:
+        self._engine.resize_window(int(width), int(height))
+
+    def set_clip_rect(self, x: int, y: int, w: int, h: int) -> None:
+        self._engine.set_clip_rect(int(x), int(y), int(w), int(h))
+
+    def clear_clip_rect(self) -> None:
+        self._engine.clear_clip_rect()

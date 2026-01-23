@@ -116,6 +116,13 @@ namespace mini {
         // Stop all currently playing sounds.
         void stop_all_sounds();
 
+        // Resize the application window.
+        void resize_window(int width, int height);
+        // Set clipping rectangle for rendering.
+        void set_clip_rect(int x, int y, int w, int h);
+        // Clear clipping rectangle (disable clipping).
+        void clear_clip_rect();
+
     private:
         SDL_Window* window_; // The main application window.
         SDL_Renderer* renderer_; // The renderer for drawing.

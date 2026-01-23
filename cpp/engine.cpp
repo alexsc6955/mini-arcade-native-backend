@@ -68,7 +68,7 @@ namespace mini {
             SDL_WINDOWPOS_CENTERED,
             width,
             height,
-            SDL_WINDOW_SHOWN
+            SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE
         );
 
         if (window_ == nullptr) {
@@ -83,6 +83,7 @@ namespace mini {
             -1,
             SDL_RENDERER_ACCELERATED
         );
+        // SDL_RenderSetLogicalSize(renderer_, width, height);
 
         if (renderer_ == nullptr) {
             std::string msg = std::string("SDL_CreateRenderer Error: ") + SDL_GetError();
@@ -101,7 +102,6 @@ namespace mini {
         initialized_ = true;
     }
 
-    
     void Engine::set_window_title(const char* title)
     {
         if (!initialized_ || !window_) return;
@@ -305,6 +305,21 @@ namespace mini {
         std::vector<Event> events;
         SDL_Event sdl_event;
 
+        auto scale_mouse = [&](int &x, int &y, int &dx, int &dy) {
+            int ww=0, wh=0, rw=0, rh=0;
+            SDL_GetWindowSize(window_, &ww, &wh);
+            SDL_GetRendererOutputSize(renderer_, &rw, &rh);
+
+            if (ww > 0 && wh > 0) {
+                float sx = (float)rw / (float)ww;
+                float sy = (float)rh / (float)wh;
+                x  = (int)lroundf(x  * sx);
+                y  = (int)lroundf(y  * sy);
+                dx = (int)lroundf(dx * sx);
+                dy = (int)lroundf(dy * sy);
+            }
+        };
+
         while (SDL_PollEvent(&sdl_event)) {
             Event ev;
 
@@ -335,6 +350,7 @@ namespace mini {
                 ev.y = sdl_event.motion.y;
                 ev.dx = sdl_event.motion.xrel;
                 ev.dy = sdl_event.motion.yrel;
+                scale_mouse(ev.x, ev.y, ev.dx, ev.dy);
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
@@ -349,6 +365,7 @@ namespace mini {
                 ev.button = (int)sdl_event.button.button;
                 ev.x = sdl_event.button.x;
                 ev.y = sdl_event.button.y;
+                scale_mouse(ev.x, ev.y, ev.dx, ev.dy);
                 break;
 
             case SDL_MOUSEWHEEL:
@@ -368,8 +385,14 @@ namespace mini {
                     sdl_event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                 {
                     ev.type = EventType::WindowResized;
-                    ev.width = sdl_event.window.data1;
-                    ev.height = sdl_event.window.data2;
+                    int rw=0, rh=0;
+                    if (renderer_ && SDL_GetRendererOutputSize(renderer_, &rw, &rh) == 0) {
+                        ev.width = rw;
+                        ev.height = rh;
+                    } else {
+                        ev.width = sdl_event.window.data1;
+                        ev.height = sdl_event.window.data2;
+                    }
                 } else {
                     continue; // ignore other window events
                 }
@@ -521,5 +544,27 @@ namespace mini {
         Mix_HaltChannel(-1);
     }
 
+    void Engine::resize_window(int width, int height)
+    {
+        if (!initialized_ || !window_) return;
+        SDL_SetWindowSize(window_, width, height);
+
+        // if (renderer_) {
+        //     SDL_RenderSetLogicalSize(renderer_, width, height);
+        // }
+    }
+
+    void Engine::set_clip_rect(int x, int y, int w, int h)
+    {
+        if (!initialized_ || renderer_ == nullptr) return;
+        SDL_Rect r{ x, y, w, h };
+        SDL_RenderSetClipRect(renderer_, &r);
+    }
+
+    void Engine::clear_clip_rect()
+    {
+        if (!initialized_ || renderer_ == nullptr) return;
+        SDL_RenderSetClipRect(renderer_, nullptr);
+    }
 
 } // namespace mini

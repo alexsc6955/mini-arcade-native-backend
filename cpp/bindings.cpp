@@ -113,5 +113,14 @@ PYBIND11_MODULE(_native, m) {
                         py::arg("sound_id"),
                         py::arg("volume"))
 
-                .def("stop_all_sounds", &mini::Engine::stop_all_sounds);
+                .def("stop_all_sounds", &mini::Engine::stop_all_sounds)
+                .def("resize_window", &mini::Engine::resize_window,
+                        py::arg("width"),
+                        py::arg("height"))
+                .def("set_clip_rect", &mini::Engine::set_clip_rect,
+                        py::arg("x"),
+                        py::arg("y"),
+                        py::arg("w"),
+                        py::arg("h"))
+                .def("clear_clip_rect", &mini::Engine::clear_clip_rect);
 }
