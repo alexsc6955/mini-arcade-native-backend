@@ -6,6 +6,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-01-23
+
+### Added
+- add draw_line method to Engine and bind it in Python
+
+### Other
+- Merge release/0.5 into develop
+
 ## [0.5.3] - 2026-01-23
 
 - Internal changes only.
