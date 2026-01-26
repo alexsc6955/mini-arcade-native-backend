@@ -567,4 +567,30 @@ namespace mini {
         SDL_RenderSetClipRect(renderer_, nullptr);
     }
 
+    void Engine::draw_line(int x1, int y1, int x2, int y2, int r, int g, int b, int a)
+    {
+        if (!initialized_ || renderer_ == nullptr) {
+            return;
+        }
+
+        auto clamp = [](int v) {
+            if (v < 0) return 0;
+            if (v > 255) return 255;
+            return v;
+        };
+
+        // alpha or default alpha
+        a = (a < 0) ? default_alpha_ : a;
+
+        SDL_SetRenderDrawColor(
+            renderer_,
+            static_cast<Uint8>(clamp(r)),
+            static_cast<Uint8>(clamp(g)),
+            static_cast<Uint8>(clamp(b)),
+            static_cast<Uint8>(clamp(a))
+        );
+
+        SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+    }
+
 } // namespace mini

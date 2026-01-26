@@ -299,12 +299,18 @@ class NativeBackend(Backend):
         if isinstance(alpha, bool):
             raise TypeError("alpha must be a float in [0,1], not bool")
 
+        # If it's an int-like value, treat as 0..255
+        if isinstance(alpha, int):
+            if alpha < 0 or alpha > 255:
+                raise ValueError(
+                    f"int alpha must be in [0, 255], got {alpha!r}"
+                )
+            return int(alpha)
+
+        # Otherwise treat as float 0..1
         a = float(alpha)
-
-        # Enforce “percentage only”
         if a < 0.0 or a > 1.0:
-            raise ValueError(f"alpha must be in [0, 1], got {alpha!r}")
-
+            raise ValueError(f"float alpha must be in [0, 1], got {alpha!r}")
         return int(round(a * 255))
 
     @staticmethod
@@ -502,3 +508,27 @@ class NativeBackend(Backend):
 
     def clear_clip_rect(self) -> None:
         self._engine.clear_clip_rect()
+
+    # Justification: Many arguments needed for line drawing
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def draw_line(
+        self,
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+        color: tuple[int, ...] = (255, 255, 255),
+    ) -> None:
+        r, g, b, a = self._get_color_values(color)
+
+        sx1 = int(round(self._vp_offset_x + x1 * self._vp_scale))
+        sy1 = int(round(self._vp_offset_y + y1 * self._vp_scale))
+        sx2 = int(round(self._vp_offset_x + x2 * self._vp_scale))
+        sy2 = int(round(self._vp_offset_y + y2 * self._vp_scale))
+
+        self._engine.draw_line(
+            sx1, sy1, sx2, sy2, int(r), int(g), int(b), int(a)
+        )
+
+
+# pylint: enable=too-many-arguments,too-many-positional-arguments

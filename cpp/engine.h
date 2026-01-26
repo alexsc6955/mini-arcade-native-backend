@@ -123,6 +123,9 @@ namespace mini {
         // Clear clipping rectangle (disable clipping).
         void clear_clip_rect();
 
+        // Draw a line from (x1, y1) to (x2, y2) with specified color.
+        void draw_line(int x1, int y1, int x2, int y2, int r, int g, int b, int a);
+
     private:
         SDL_Window* window_; // The main application window.
         SDL_Renderer* renderer_; // The renderer for drawing.

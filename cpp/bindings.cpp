@@ -122,5 +122,10 @@ PYBIND11_MODULE(_native, m) {
                         py::arg("y"),
                         py::arg("w"),
                         py::arg("h"))
-                .def("clear_clip_rect", &mini::Engine::clear_clip_rect);
+                .def("clear_clip_rect", &mini::Engine::clear_clip_rect)
+                .def("draw_line", &mini::Engine::draw_line,
+                        py::arg("x1"), py::arg("y1"),
+                        py::arg("x2"), py::arg("y2"),
+                        py::arg("r"), py::arg("g"), py::arg("b"), py::arg("a"));
+
 }
