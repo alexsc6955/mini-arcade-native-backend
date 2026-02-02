@@ -35,33 +35,33 @@ find_package(SDL2_mixer CONFIG REQUIRED)
 
 set(TARGET_NAME _native)
 
-# set(NATIVE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/native)
-# set(NATIVE_INC  ${NATIVE_ROOT}/include)
+set(NATIVE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/src/native)
+set(NATIVE_INC  ${NATIVE_ROOT}/include)
 
-# set(NATIVE_SOURCES
-#     ${NATIVE_ROOT}/bindings.cpp
-#     ${NATIVE_ROOT}/backend.cpp
-#     ${NATIVE_ROOT}/platform.cpp
-#     ${NATIVE_ROOT}/window.cpp
-#     ${NATIVE_ROOT}/input.cpp
-#     ${NATIVE_ROOT}/capture.cpp
-#     ${NATIVE_ROOT}/audio.cpp
-#     ${NATIVE_ROOT}/sdl_renderer.cpp
-#     ${NATIVE_ROOT}/sdl_text.cpp
-# )
-
-# pybind11_add_module(${TARGET_NAME} ${NATIVE_SOURCES})
-
-# target_include_directories(${TARGET_NAME}
-#     PRIVATE
-#         ${NATIVE_INC}
-# )
-
-# C++ sources live under cpp/
-pybind11_add_module(${TARGET_NAME}
-    cpp/bindings.cpp
-    cpp/engine.cpp
+set(NATIVE_SOURCES
+    ${NATIVE_ROOT}/bindings.cpp
+    ${NATIVE_ROOT}/backend.cpp
+    ${NATIVE_ROOT}/platform.cpp
+    ${NATIVE_ROOT}/window.cpp
+    ${NATIVE_ROOT}/input.cpp
+    ${NATIVE_ROOT}/capture.cpp
+    ${NATIVE_ROOT}/audio.cpp
+    ${NATIVE_ROOT}/sdl_renderer.cpp
+    ${NATIVE_ROOT}/sdl_text.cpp
 )
+
+pybind11_add_module(${TARGET_NAME} ${NATIVE_SOURCES})
+
+target_include_directories(${TARGET_NAME}
+    PRIVATE
+        ${NATIVE_INC}
+)
+
+# # C++ sources live under cpp/
+# pybind11_add_module(${TARGET_NAME}
+#     cpp/bindings.cpp
+#     cpp/engine.cpp
+# )
 
 target_link_libraries(${TARGET_NAME} PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf SDL2_mixer::SDL2_mixer)
 
