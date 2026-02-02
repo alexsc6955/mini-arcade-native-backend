@@ -45,14 +45,14 @@ class NativeBackend:
         self.audio: AudioPort | None = None
         self.capture: CapturePort | None = None
 
-    def _initialize_window(self, cfg: native.BackendConfig) -> None:
+    def _initialize_window(self, cfg: native.BackendConfig):
         cfg.window.width = int(self._settings.window.width)
         cfg.window.height = int(self._settings.window.height)
         cfg.window.title = self._settings.window.title
         cfg.window.resizable = self._settings.window.resizable
         cfg.window.high_dpi = self._settings.window.high_dpi
 
-    def _initialize_renderer(self, cfg: native.BackendConfig) -> None:
+    def _initialize_renderer(self, cfg: native.BackendConfig):
         cfg.render.api = native.RenderAPI.SDL2
 
         r, g, b = self._settings.renderer.background_color
@@ -61,19 +61,19 @@ class NativeBackend:
         cfg.render.clear_color.b = int(b)
         cfg.render.clear_color.a = 255
 
-    def _initialize_fonts(self, cfg: native.BackendConfig) -> None:
+    def _initialize_fonts(self, cfg: native.BackendConfig):
         for font in self._settings.fonts:
             if font.path:
                 cfg.text.default_font_path = str(font.path)
                 cfg.text.default_font_size = int(font.size)
 
-    def _initialize_audio(self, cfg: native.BackendConfig) -> None:
+    def _initialize_audio(self, cfg: native.BackendConfig):
         cfg.audio.enabled = bool(self._settings.audio.enable)
 
         if self._settings.audio.sounds:
             cfg.sounds = dict(self._settings.audio.sounds)
 
-    def init(self) -> None:
+    def init(self):
         """
         Initialize the native backend with the given window settings.
         """
@@ -103,7 +103,7 @@ class NativeBackend:
 
     def set_viewport_transform(
         self, offset_x: int, offset_y: int, scale: float
-    ) -> None:
+    ):
         """
         Set the viewport transformation.
 
@@ -118,7 +118,7 @@ class NativeBackend:
         self._vp.oy = int(offset_y)
         self._vp.s = float(scale)
 
-    def clear_viewport_transform(self) -> None:
+    def clear_viewport_transform(self):
         """
         Clear the viewport transformation (reset to defaults).
         """

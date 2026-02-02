@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 
-def setup_windows_dll_search_paths() -> None:
+def setup_windows_dll_search_paths():
     """Set up DLL search paths on Windows."""
     if sys.platform != "win32":
         return

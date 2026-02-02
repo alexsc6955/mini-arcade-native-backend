@@ -23,7 +23,7 @@ class AudioPort:
 
     def init(
         self, frequency: int = 44100, channels: int = 2, chunk_size: int = 2048
-    ) -> None:
+    ):
         """
         Initialize the audio subsystem.
 
@@ -36,11 +36,11 @@ class AudioPort:
         """
         self._a.init(int(frequency), int(channels), int(chunk_size))
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         """Shutdown the audio subsystem."""
         self._a.shutdown()
 
-    def load_sound(self, sound_id: str, path: str) -> None:
+    def load_sound(self, sound_id: str, path: str):
         """
         Load a sound file.
 
@@ -54,7 +54,7 @@ class AudioPort:
             raise ValueError("sound_id cannot be empty")
         self._a.load_sound(sound_id, validate_file_exists(path))
 
-    def play_sound(self, sound_id: str, loops: int = 0) -> None:
+    def play_sound(self, sound_id: str, loops: int = 0):
         """
         Play a loaded sound.
 
@@ -65,7 +65,7 @@ class AudioPort:
         """
         self._a.play_sound(sound_id, int(loops))
 
-    def set_master_volume(self, volume: int) -> None:
+    def set_master_volume(self, volume: int):
         """
         Set the master volume.
 
@@ -74,7 +74,7 @@ class AudioPort:
         """
         self._a.set_master_volume(int(volume))
 
-    def set_sound_volume(self, sound_id: str, volume: int) -> None:
+    def set_sound_volume(self, sound_id: str, volume: int):
         """
         Set the volume for a specific sound.
 
@@ -85,6 +85,6 @@ class AudioPort:
         """
         self._a.set_sound_volume(sound_id, int(volume))
 
-    def stop_all(self) -> None:
+    def stop_all(self):
         """Stop all currently playing sounds."""
         self._a.stop_all()

@@ -30,7 +30,7 @@ class RenderPort:
         self._b = native_backend
         self._vp = vp
 
-    def set_clear_color(self, r: int, g: int, b: int) -> None:
+    def set_clear_color(self, r: int, g: int, b: int):
         """
         Set the clear color for the renderer.
 
@@ -43,17 +43,15 @@ class RenderPort:
         """
         self._b.set_clear_color(int(r), int(g), int(b))
 
-    def begin_frame(self) -> None:
+    def begin_frame(self):
         """Begin a new rendering frame."""
         self._b.begin_frame()
 
-    def end_frame(self) -> None:
+    def end_frame(self):
         """End the current rendering frame."""
         self._b.end_frame()
 
-    def draw_rect(
-        self, x: int, y: int, w: int, h: int, color=(255, 255, 255)
-    ) -> None:
+    def draw_rect(self, x: int, y: int, w: int, h: int, color=(255, 255, 255)):
         """
         Draw a filled rectangle.
 
@@ -75,7 +73,7 @@ class RenderPort:
 
     def draw_line(
         self, x1: int, y1: int, x2: int, y2: int, color=(255, 255, 255)
-    ) -> None:
+    ):
         """
         Draw a line between two points.
 
@@ -95,7 +93,7 @@ class RenderPort:
         sx2, sy2 = self._vp.map_xy(x2, y2)
         self._b.draw_line(sx1, sy1, sx2, sy2, r, g, b, a)
 
-    def set_clip_rect(self, x: int, y: int, w: int, h: int) -> None:
+    def set_clip_rect(self, x: int, y: int, w: int, h: int):
         """
         Set the clipping rectangle.
 
@@ -112,7 +110,7 @@ class RenderPort:
         sw, sh = self._vp.map_wh(w, h)
         self._b.set_clip_rect(sx, sy, sw, sh)
 
-    def clear_clip_rect(self) -> None:
+    def clear_clip_rect(self):
         """Clear the clipping rectangle."""
         self._b.clear_clip_rect()
 

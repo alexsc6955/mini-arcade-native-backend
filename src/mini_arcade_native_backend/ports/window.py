@@ -23,11 +23,12 @@ class WindowPort:
         self._window = native_window
         self.refresh()
 
-    def refresh(self) -> None:
+    def refresh(self):
+        """Refresh cached window size values."""
         self.width, self.height = self.size()
         self.vp_width, self.vp_height = self.drawable_size()
 
-    def set_title(self, title: str) -> None:
+    def set_title(self, title: str):
         """
         Set the window title.
 
@@ -36,7 +37,7 @@ class WindowPort:
         """
         self._window.set_title(title)
 
-    def resize(self, width: int, height: int) -> None:
+    def resize(self, width: int, height: int):
         """
         Resize the window.
 

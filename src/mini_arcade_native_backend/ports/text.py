@@ -88,7 +88,7 @@ class TextPort:
         text: str,
         color=(255, 255, 255),
         font_size: int | None = None,
-    ) -> None:
+    ):
         """
         Draw the given text at the specified position.
 

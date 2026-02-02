@@ -163,7 +163,7 @@ class Window:
     Window management class.
     """
 
-    def set_title(self, title: str) -> None:
+    def set_title(self, title: str):
         """
         Set the window title.
 
@@ -171,7 +171,7 @@ class Window:
         :type title: str
         """
 
-    def resize(self, w: int, h: int) -> None:
+    def resize(self, w: int, h: int):
         """
         Resize the window.
 
@@ -204,7 +204,7 @@ class Audio:
 
     def init(
         self, frequency: int = 44100, channels: int = 2, chunk_size: int = 2048
-    ) -> None:
+    ):
         """
         :param frequency: Audio frequency (default is 44100).
         :type frequency: int
@@ -214,10 +214,10 @@ class Audio:
         :type chunk_size: int
         """
 
-    def shutdown(self) -> None:
+    def shutdown(self):
         """Shutdown the audio system."""
 
-    def load_sound(self, id: str, path: str) -> None:
+    def load_sound(self, id: str, path: str):
         """
         Load a sound from the given file path.
 
@@ -227,7 +227,7 @@ class Audio:
         :type path: str
         """
 
-    def play_sound(self, id: str, loops: int = 0) -> None:
+    def play_sound(self, id: str, loops: int = 0):
         """
         Play a sound by its identifier.
 
@@ -237,7 +237,7 @@ class Audio:
         :type loops: int
         """
 
-    def set_master_volume(self, volume: int) -> None:
+    def set_master_volume(self, volume: int):
         """
         Set the master volume for audio playback.
 
@@ -245,7 +245,7 @@ class Audio:
         :type volume: int
         """
 
-    def set_sound_volume(self, id: str, volume: int) -> None:
+    def set_sound_volume(self, id: str, volume: int):
         """
         Set the volume for a specific sound.
 
@@ -255,7 +255,7 @@ class Audio:
         :type volume: int
         """
 
-    def stop_all(self) -> None:
+    def stop_all(self):
         """Stop all currently playing sounds."""
 
 class Backend:
@@ -269,13 +269,13 @@ class Backend:
     window: Window
     audio: Audio
 
-    def __init__(self, config: BackendConfig) -> None:
+    def __init__(self, config: BackendConfig):
         """
         :param config: Configuration for the backend.
         :type config: BackendConfig
         """
 
-    def set_clear_color(self, r: int, g: int, b: int) -> None:
+    def set_clear_color(self, r: int, g: int, b: int):
         """
         Set the clear color for rendering.
 
@@ -287,15 +287,15 @@ class Backend:
         :type b: int
         """
 
-    def begin_frame(self) -> None:
+    def begin_frame(self):
         """Begin a new rendering frame."""
 
-    def end_frame(self) -> None:
+    def end_frame(self):
         """End the current rendering frame."""
 
     def draw_rect(
         self, x: int, y: int, w: int, h: int, r: int, g: int, b: int, a: int
-    ) -> None:
+    ):
         """
         Draw a rectangle.
 
@@ -327,7 +327,7 @@ class Backend:
         g: int,
         b: int,
         a: int,
-    ) -> None:
+    ):
         """
         Draw a line.
 
@@ -349,7 +349,7 @@ class Backend:
         :type a: int
         """
 
-    def set_clip_rect(self, x: int, y: int, w: int, h: int) -> None:
+    def set_clip_rect(self, x: int, y: int, w: int, h: int):
         """
         Set the clipping rectangle for rendering.
 
@@ -363,7 +363,7 @@ class Backend:
         :type h: int
         """
 
-    def clear_clip_rect(self) -> None:
+    def clear_clip_rect(self):
         """Clear the clipping rectangle."""
 
     def load_font(self, path: str, pt: int) -> int:
@@ -400,7 +400,7 @@ class Backend:
         b: int,
         a: int,
         font_id: int = -1,
-    ) -> None:
+    ):
         """
         Draw text at the specified position.
 

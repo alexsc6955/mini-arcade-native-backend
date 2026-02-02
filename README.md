@@ -259,14 +259,14 @@ from mini_arcade_core.backend import Backend, Event, EventType
 from mini_arcade_native_backend import NativeBackend
 
 class MyScene(Scene):
-    def handle_event(self, event: Event) -> None:
+    def handle_event(self, event: Event):
         if event.type == EventType.KEYDOWN and event.key == 27:  # ESC
             self.game.quit()
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float):
         ...
 
-    def draw(self, backend: Backend) -> None:
+    def draw(self, backend: Backend):
         backend.draw_rect(100, 100, 200, 150)
 
 config = GameConfig(
