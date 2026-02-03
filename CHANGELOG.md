@@ -6,6 +6,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-02-03
+
+### Changed
+- Add separation of concerns
+
+### Other
+- Merge release/0.6 into develop
+- Merge branch 'release/0.6' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.6
+
 ## [0.6.0] - 2026-01-23
 
 ### Added
