@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-02-04
+
+### Added
+- add ARGB8888 capture functionality and corresponding bindings
+
 ## [1.0.0] - 2026-02-03
 
 ### Changed
