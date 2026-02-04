@@ -31,3 +31,17 @@ class CapturePort:
         :rtype: bool
         """
         return bool(self._b.capture_bmp(str(path)))
+
+    def argb8888_bytes(self) -> tuple[int, int, bytes]:
+        """
+        Capture the current screen and return the pixel data in ARGB8888 format.
+
+        :return: A tuple containing the width, height, and pixel data in ARGB8888 format.
+        :rtype: tuple[int, int, bytes]
+        """
+        # new native function you add
+        w, h, data = self._b.capture_argb8888_bytes()
+        # ensure types are right
+        if not isinstance(data, (bytes, bytearray)):
+            raise TypeError(f"capture_argb8888_bytes() returned {type(data)}")
+        return int(w), int(h), bytes(data)

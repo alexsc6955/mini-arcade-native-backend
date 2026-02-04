@@ -5,6 +5,7 @@
 #include "mini/sdl_renderer.h" // only for types if needed
 #include "mini/event.h"
 #include "mini/config.h"
+#include "mini/capture_bytes.h"
 
 namespace py = pybind11;
 using namespace mini;
@@ -163,5 +164,12 @@ PYBIND11_MODULE(_native, m) {
         // Capture
         .def("capture_bmp", [](Backend& b, const std::string& path){
             return b.capture().save_bmp(b.render(), path);
+        })
+        .def("capture_argb8888_bytes", [](Backend& b){
+            PixelBuffer pb = mini::capture_argb8888(b.render());
+            return py::make_tuple(pb.w, pb.h, py::bytes(
+                reinterpret_cast<const char*>(pb.bytes.data()),
+                pb.bytes.size()
+            ));
         });
 }

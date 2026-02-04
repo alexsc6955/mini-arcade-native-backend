@@ -48,6 +48,7 @@ set(NATIVE_SOURCES
     ${NATIVE_ROOT}/audio.cpp
     ${NATIVE_ROOT}/sdl_renderer.cpp
     ${NATIVE_ROOT}/sdl_text.cpp
+    ${NATIVE_ROOT}/capture_bytes.cpp
 )
 
 pybind11_add_module(${TARGET_NAME} ${NATIVE_SOURCES})

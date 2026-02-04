@@ -439,3 +439,11 @@ class Backend:
         :return: True if the capture was successful, False otherwise.
         :rtype: bool
         """
+
+    def capture_argb8888_bytes(self) -> tuple[int, int, bytes]:
+        """
+        Capture the current frame buffer and return pixel data in ARGB8888 format.
+
+        :return: A tuple containing the width, height, and pixel data in ARGB8888 format.
+        :rtype: tuple[int, int, bytes]
+        """
