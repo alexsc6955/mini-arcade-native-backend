@@ -4,7 +4,9 @@ Native backend façade.
 
 from __future__ import annotations
 
-from mini_arcade_native_backend.config import BackendSettings
+from mini_arcade_core.backend.viewport import ViewportTransform
+
+from mini_arcade_native_backend.config import NativeBackendSettings
 from mini_arcade_native_backend.mapping.events import NativeEventMapper
 from mini_arcade_native_backend.ports.audio import AudioPort
 from mini_arcade_native_backend.ports.capture import CapturePort
@@ -12,7 +14,6 @@ from mini_arcade_native_backend.ports.input import InputPort
 from mini_arcade_native_backend.ports.render import RenderPort
 from mini_arcade_native_backend.ports.text import TextPort
 from mini_arcade_native_backend.ports.window import WindowPort
-from mini_arcade_native_backend.viewport import ViewportTransform
 
 # Justification: native is a compiled extension module.
 # pylint: disable=no-name-in-module
@@ -29,11 +30,11 @@ class NativeBackend:
     Core will be updated to depend on these sub-ports.
 
     :param settings: Backend settings.
-    :type settings: BackendSettings | None
+    :type settings: NativeBackendSettings | None
     """
 
-    def __init__(self, settings: BackendSettings | None = None):
-        self._settings = settings or BackendSettings()
+    def __init__(self, settings: NativeBackendSettings | None = None):
+        self._settings = settings or NativeBackendSettings()
         self._vp = ViewportTransform()
         self._backend: native.Backend | None = None
 
@@ -46,32 +47,32 @@ class NativeBackend:
         self.capture: CapturePort | None = None
 
     def _initialize_window(self, cfg: native.BackendConfig):
-        cfg.window.width = int(self._settings.window.width)
-        cfg.window.height = int(self._settings.window.height)
-        cfg.window.title = self._settings.window.title
-        cfg.window.resizable = self._settings.window.resizable
-        cfg.window.high_dpi = self._settings.window.high_dpi
+        cfg.window.width = int(self._settings.core.window.width)
+        cfg.window.height = int(self._settings.core.window.height)
+        cfg.window.title = self._settings.core.window.title
+        cfg.window.resizable = self._settings.core.window.resizable
+        cfg.window.high_dpi = self._settings.core.window.high_dpi
 
     def _initialize_renderer(self, cfg: native.BackendConfig):
-        cfg.render.api = native.RenderAPI.SDL2
+        cfg.render.api = self._settings.api
 
-        r, g, b = self._settings.renderer.background_color
+        r, g, b = self._settings.core.renderer.background_color
         cfg.render.clear_color.r = int(r)
         cfg.render.clear_color.g = int(g)
         cfg.render.clear_color.b = int(b)
         cfg.render.clear_color.a = 255
 
     def _initialize_fonts(self, cfg: native.BackendConfig):
-        for font in self._settings.fonts:
+        for font in self._settings.core.fonts:
             if font.path:
                 cfg.text.default_font_path = str(font.path)
                 cfg.text.default_font_size = int(font.size)
 
     def _initialize_audio(self, cfg: native.BackendConfig):
-        cfg.audio.enabled = bool(self._settings.audio.enable)
+        cfg.audio.enabled = bool(self._settings.core.audio.enable)
 
-        if self._settings.audio.sounds:
-            cfg.sounds = dict(self._settings.audio.sounds)
+        if self._settings.core.audio.sounds:
+            cfg.sounds = dict(self._settings.core.audio.sounds)
 
     def init(self):
         """
@@ -96,7 +97,11 @@ class NativeBackend:
         self.text = TextPort(
             self._backend,
             self._vp,
-            self._settings.fonts[0].path if self._settings.fonts else None,
+            (
+                self._settings.core.fonts[0].path
+                if self._settings.core.fonts
+                else None
+            ),
         )
         self.input = InputPort(self._backend, mapper)
         self.capture = CapturePort(self._backend)

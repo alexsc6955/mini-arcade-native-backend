@@ -13,22 +13,12 @@ setup_windows_dll_search_paths()
 if TYPE_CHECKING:
     # Justification: Need to import core after setting DLL path on Windows
     # pylint: disable=wrong-import-position
-    from .config import (
-        AudioSettings,
-        BackendSettings,
-        FontSettings,
-        RendererSettings,
-        WindowSettings,
-    )
+    from .config import NativeBackendSettings
     from .native_backend import NativeBackend
 
 __all__ = [
     "NativeBackend",
-    "BackendSettings",
-    "WindowSettings",
-    "RendererSettings",
-    "FontSettings",
-    "AudioSettings",
+    "NativeBackendSettings",
 ]
 
 
@@ -40,20 +30,8 @@ def __getattr__(name: str):
 
         return NativeBackend
 
-    if name in {
-        "AudioSettings",
-        "BackendSettings",
-        "FontSettings",
-        "RendererSettings",
-        "WindowSettings",
-    }:
-        from .config import (
-            AudioSettings,
-            BackendSettings,
-            FontSettings,
-            RendererSettings,
-            WindowSettings,
-        )
+    if name == "NativeBackendSettings":
+        from .config import NativeBackendSettings
 
         return locals()[name]
 

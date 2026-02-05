@@ -4,10 +4,13 @@ Audio port for the Mini Arcade native backend.
 
 from __future__ import annotations
 
+from mini_arcade_core.backend.utils import (  # pyright: ignore[reportMissingImports]
+    validate_file_exists,
+)
+
 # Justification: native is a compiled extension module.
 # pylint: disable=no-name-in-module
 from mini_arcade_native_backend import _native as native  # type: ignore
-from mini_arcade_native_backend.config import validate_file_exists
 
 
 class AudioPort:

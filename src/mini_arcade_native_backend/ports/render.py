@@ -5,11 +5,14 @@ Provides functionality to draw shapes and manage rendering state.
 
 from __future__ import annotations
 
+from mini_arcade_core.backend.utils import (  # pyright: ignore[reportMissingImports]
+    rgba,
+)
+from mini_arcade_core.backend.viewport import ViewportTransform
+
 # Justification: native is a compiled extension module.
 # pylint: disable=no-name-in-module
 from mini_arcade_native_backend import _native as native  # type: ignore
-from mini_arcade_native_backend.config import rgba
-from mini_arcade_native_backend.viewport import ViewportTransform
 
 # Justification: Methods like draw_rect have many parameters because of color and position.
 # We want to keep the API simple and straightforward.
