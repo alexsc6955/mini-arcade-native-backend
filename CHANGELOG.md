@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-02-05
+
+### Changed
+- consolidate backend settings and remove unused viewport module
+
 ## [1.0.1] - 2026-02-04
 
 ### Added
