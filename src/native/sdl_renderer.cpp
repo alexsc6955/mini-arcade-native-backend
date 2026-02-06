@@ -104,6 +104,47 @@ namespace mini {
         textures_.erase(it);
     }
 
+    void SdlRenderer::draw_texture_tiled_y(TextureHandle tex_id, int x, int y, int w, int h) {
+        auto it = textures_.find(tex_id);
+        if (it == textures_.end() || !it->second) return;
+
+        SDL_Texture* tex = it->second;
+
+        int src_w = 0;
+        int src_h = 0;
+        Uint32 fmt = 0;
+        int access = 0;
+
+        if (SDL_QueryTexture(tex, &fmt, &access, &src_w, &src_h) != 0) {
+            return; // optionally log SDL_GetError()
+        }
+
+        // Match pygame behavior: keep tile height = original texture height
+        const int tile_h = src_h;
+
+        int cur_y = y;
+        const int end_y = y + h;
+
+        // Full source rect for one tile
+        SDL_Rect src_full{0, 0, src_w, src_h};
+
+        while (cur_y < end_y) {
+            const int remaining = end_y - cur_y;
+
+            if (remaining >= tile_h) {
+                SDL_Rect dst{x, cur_y, w, tile_h}; // width scaled, height unchanged
+                SDL_RenderCopy(renderer_, tex, &src_full, &dst);
+                cur_y += tile_h;
+            } else {
+                // Crop vertically for the last partial piece
+                SDL_Rect src_part{0, 0, src_w, remaining};
+                SDL_Rect dst{x, cur_y, w, remaining};
+                SDL_RenderCopy(renderer_, tex, &src_part, &dst);
+                break;
+            }
+        }
+    }
+
     bool SdlRenderer::read_pixels_argb8888(void* dst, int pitch, int w, int h) {
         // Read from current render target
         // Note: This reads ARGB8888 by request (matches your previous code).

@@ -447,3 +447,65 @@ class Backend:
         :return: A tuple containing the width, height, and pixel data in ARGB8888 format.
         :rtype: tuple[int, int, bytes]
         """
+
+    def create_texture_rgba(
+        self, width: int, height: int, data: bytes, pitch: int = -1
+    ) -> int:
+        """
+        Create a texture from RGBA pixel data.
+
+        :param width: Width of the texture.
+        :type width: int
+        :param height: Height of the texture.
+        :type height: int
+        :param data: Pixel data in RGBA format.
+        :type data: bytes
+        :param pitch: Number of bytes per row (default is -1 for tightly packed).
+        :type pitch: int
+        :return: Texture identifier.
+        :rtype: int
+        """
+
+    def draw_texture(
+        self, texture_id: int, x: int, y: int, width: int, height: int
+    ) -> None:
+        """
+        Draw a texture at the specified position and size.
+
+        :param texture_id: Identifier of the texture to draw.
+        :type texture_id: int
+        :param x: X coordinate for the texture.
+        :type x: int
+        :param y: Y coordinate for the texture.
+        :type y: int
+        :param width: Width of the texture.
+        :type width: int
+        :param height: Height of the texture.
+        :type height: int
+        """
+
+    def destroy_texture(self, texture_id: int) -> None:
+        """
+        Destroy a texture by its identifier.
+
+        :param texture_id: Identifier of the texture to destroy.
+        :type texture_id: int
+        """
+
+    def draw_texture_tiled_y(
+        self, texture_id: int, x: int, y: int, width: int, height: int
+    ) -> None:
+        """
+        Draw a texture repeated vertically to fill (width, height).
+
+        :param texture_id: Identifier of the texture to draw.
+        :type texture_id: int
+        :param x: X coordinate for the texture.
+        :type x: int
+        :param y: Y coordinate for the texture.
+        :type y: int
+        :param width: Width of the area to fill with the texture.
+        :type width: int
+        :param height: Height of the area to fill with the texture.
+        :type height: int
+        """

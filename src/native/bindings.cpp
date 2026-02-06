@@ -144,6 +144,64 @@ PYBIND11_MODULE(_native, m) {
         .def("clear_clip_rect", [](Backend& b){
             b.render().clear_clip_rect();
         })
+        .def("create_texture_rgba",
+            [](Backend& b, int w, int h, py::buffer data, int pitch) -> int {
+                py::buffer_info info = data.request();
+
+                // Expect a flat uint8 buffer
+                if (info.ndim != 1) {
+                    throw std::runtime_error("create_texture_rgba: expected 1D bytes buffer");
+                }
+                if (info.itemsize != 1) {
+                    throw std::runtime_error("create_texture_rgba: expected uint8 buffer");
+                }
+
+                const std::size_t expected = static_cast<std::size_t>(h) * static_cast<std::size_t>(pitch);
+                if (static_cast<std::size_t>(info.size) < expected) {
+                    throw std::runtime_error("create_texture_rgba: buffer too small for h*pitch");
+                }
+
+                return static_cast<int>(
+                    b.render().create_texture_rgba(w, h, info.ptr, pitch)
+                );
+            },
+            py::arg("width"),
+            py::arg("height"),
+            py::arg("data"),
+            py::arg("pitch") = -1
+        )
+
+        .def("destroy_texture",
+            [](Backend& b, int texture_id) {
+                b.render().destroy_texture(static_cast<TextureHandle>(texture_id));
+            },
+            py::arg("texture_id")
+        )
+
+        .def("draw_texture",
+            [](Backend& b, int texture_id, int x, int y, int w, int h) {
+                b.render().draw_texture(static_cast<TextureHandle>(texture_id), x, y, w, h);
+            },
+            py::arg("texture_id"),
+            py::arg("x"),
+            py::arg("y"),
+            py::arg("width"),
+            py::arg("height")
+        )
+
+        .def("draw_texture_tiled_y",
+            [](Backend& b, int texture_id, int x, int y, int w, int h) {
+                b.render().draw_texture_tiled_y(
+                    static_cast<TextureHandle>(texture_id), x, y, w, h
+                );
+            },
+            py::arg("texture_id"),
+            py::arg("x"),
+            py::arg("y"),
+            py::arg("width"),
+            py::arg("height")
+        )
+
 
         // Text wrappers
         .def("load_font", [](Backend& b, const std::string& path, int pt){

@@ -27,6 +27,7 @@ class IRenderer {
         virtual TextureHandle create_texture_rgba(int w, int h, const void* pixels, int pitch) = 0;
         virtual void draw_texture(TextureHandle tex, int x, int y, int w, int h) = 0;
         virtual void destroy_texture(TextureHandle tex) = 0;
+        virtual void draw_texture_tiled_y(TextureHandle tex, int x, int y, int w, int h) = 0;
 
         // Capture hook (ARGB8888)
         virtual bool read_pixels_argb8888(void* dst, int pitch, int w, int h) = 0;

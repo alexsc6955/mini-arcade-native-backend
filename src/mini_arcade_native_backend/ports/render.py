@@ -117,6 +117,36 @@ class RenderPort:
         """Clear the clipping rectangle."""
         self._b.clear_clip_rect()
 
+    def create_texture_rgba(
+        self, w: int, h: int, pixels: bytes, pitch: int | None = None
+    ) -> int:
+        """
+        Create a texture from RGBA pixel data.
+
+        :param w: The width of the texture.
+        :type w: int
+        :param h: The height of the texture.
+        :type h: int
+        :param pixels: The pixel data in RGBA format.
+        :type pixels: bytes
+        :param pitch: The number of bytes in a row of pixel data. If None, defaults to w * 4.
+        :type pitch: int | None
+        """
+        if pitch is None:
+            pitch = w * 4
+        return int(
+            self._b.create_texture_rgba(int(w), int(h), pixels, int(pitch))
+        )
+
+    def destroy_texture(self, tex: int) -> None:
+        """
+        Destroy a texture.
+
+        :param tex: The texture ID to destroy.
+        :type tex: int
+        """
+        self._b.destroy_texture(int(tex))
+
     def draw_texture(self, tex: int, x: int, y: int, w: int, h: int):
         """
         Draw a texture at the specified position and size.
@@ -134,4 +164,25 @@ class RenderPort:
         """
         sx, sy = self._vp.map_xy(x, y)
         sw, sh = self._vp.map_wh(w, h)
-        self._b.draw_texture(tex, sx, sy, sw, sh)
+        self._b.draw_texture(int(tex), int(sx), int(sy), int(sw), int(sh))
+
+    def draw_texture_tiled_y(self, tex: int, x: int, y: int, w: int, h: int):
+        """
+        Draw a texture tiled vertically at the specified position and size.
+
+        :param tex: The texture ID.
+        :type tex: int
+        :param x: The x-coordinate to draw the texture.
+        :type x: int
+        :param y: The y-coordinate to draw the texture.
+        :type y: int
+        :param w: The width to draw the texture.
+        :type w: int
+        :param h: The height to draw the texture.
+        :type h: int
+        """
+        sx, sy = self._vp.map_xy(x, y)
+        sw, sh = self._vp.map_wh(w, h)
+        self._b.draw_texture_tiled_y(
+            int(tex), int(sx), int(sy), int(sw), int(sh)
+        )

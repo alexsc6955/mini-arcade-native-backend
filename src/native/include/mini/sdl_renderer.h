@@ -26,8 +26,10 @@ class SdlRenderer final : public IRenderer {
         TextureHandle create_texture_rgba(int w, int h, const void* pixels, int pitch) override;
         void draw_texture(TextureHandle tex, int x, int y, int w, int h) override;
         void destroy_texture(TextureHandle tex) override;
+        void draw_texture_tiled_y(TextureHandle tex, int x, int y, int w, int h) override;
 
         bool read_pixels_argb8888(void* dst, int pitch, int w, int h) override;
+        
 
         SDL_Renderer* sdl() const { return renderer_; }
 
