@@ -6,6 +6,30 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-02-06
+
+### Added
+- add texture management functions including creation, drawing, and destruction
+
+## [1.0.2] - 2026-02-05
+
+### Changed
+- consolidate backend settings and remove unused viewport module
+
+## [1.0.1] - 2026-02-04
+
+### Added
+- add ARGB8888 capture functionality and corresponding bindings
+
+## [1.0.0] - 2026-02-03
+
+### Changed
+- Add separation of concerns
+
+### Other
+- Merge release/0.6 into develop
+- Merge branch 'release/0.6' of https://github.com/alexsc6955/mini-arcade-native-backend into release/0.6
+
 ## [0.6.0] - 2026-01-23
 
 ### Added
